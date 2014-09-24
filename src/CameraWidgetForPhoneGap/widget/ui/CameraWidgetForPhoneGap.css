@@ -1,0 +1,10 @@
+.wx-CameraWidgetForPhoneGap-preview {
+    display: inline-block;
+    vertical-align: top;
+    width: 34px;
+    height: 34px;
+    margin: 0 8px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background-size: cover;
+}
