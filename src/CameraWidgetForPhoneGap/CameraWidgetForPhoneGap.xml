@@ -21,14 +21,6 @@
             <category>Appearance</category>
             <description>The class on the button.</description>
         </property>
-        <property key="attributeName" type="attribute">
-            <caption>Attribute</caption>
-            <category>Behavior</category>
-            <description>The attribute where the image is saved to.</description>
-            <attributeTypes>
-                <attributeType name="String"/>
-            </attributeTypes>
-        </property>
         <property key="targetWidth" type="integer" defaultValue="150">
             <caption>Width</caption>
             <category>Behavior</category>
