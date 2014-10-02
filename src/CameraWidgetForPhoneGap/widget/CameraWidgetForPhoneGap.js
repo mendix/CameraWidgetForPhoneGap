@@ -48,7 +48,9 @@
             var success = dojo.hitch(this, '_setPicture');
 
             var error = function(e) {
-                mx.ui.error('Retrieving image from camera failed with error code ' + e.code);
+                if(typeof e.code !== 'undefined'){
+                    mx.ui.error('Retrieving image from camera failed with error code ' + e.code);
+                }
             };
 
             // TODO: get rid of temp image files
