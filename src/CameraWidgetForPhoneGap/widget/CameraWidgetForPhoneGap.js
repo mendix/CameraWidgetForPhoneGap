@@ -2,6 +2,7 @@
     'use strict';
 
     dojo.declare('CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap', mxui.widget._WidgetBase, {
+
         _imageUrl: '',
         _contextObj: null,
         _previewNode: null,
