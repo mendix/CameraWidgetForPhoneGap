@@ -21,21 +21,36 @@
             <category>Appearance</category>
             <description>The class on the button.</description>
         </property>
+        <property key="imageWidth" type="integer" defaultValue="150">
+          <caption>Width</caption>
+          <category>Appearance</category>
+          <description>The width of the image.</description>
+        </property>
+        <property key="imageHeight" type="integer" defaultValue="150">
+          <caption>Height</caption>
+          <category>Appearance</category>
+          <description>The height of the image.</description>
+        </property>
+        <property key="imageLocation" type="enumeration" defaultValue="Right">
+            <caption>Image location</caption>
+            <category>Appearance</category>
+            <description>The position where the image is set.</description>
+            <enumerationValues>
+                <enumerationValue key="Above">Above</enumerationValue>
+                <enumerationValue key="Below">Below</enumerationValue>
+                <enumerationValue key="Left">Left</enumerationValue>
+                <enumerationValue key="Right">Right</enumerationValue>
+            </enumerationValues>
+        </property>
         <property key="targetWidth" type="integer" defaultValue="150">
-            <caption>Width</caption>
-            <category>Behavior</category>
+            <caption>Quality width</caption>
+            <category>Image quality</category>
             <description>The width of the image.</description>
         </property>
         <property key="targetHeight" type="integer" defaultValue="150">
-            <caption>Height</caption>
-            <category>Behavior</category>
+            <caption>Quality height</caption>
+            <category>Image quality</category>
             <description>The height of the image.</description>
-        </property>
-        <property key="onchangemf" type="microflow" required="false">
-            <caption>On change microflow</caption>
-            <category>Events</category>
-            <description></description> 
-            <returnType type="Void"/>
         </property>
 	</properties>
 </widget>
