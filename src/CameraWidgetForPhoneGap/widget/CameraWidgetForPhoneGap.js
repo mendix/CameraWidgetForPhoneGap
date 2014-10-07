@@ -82,7 +82,7 @@
                     trBottom.appendChild(tdBottom);
 
                     tableHtml.appendChild(trTop);
-                    tableHtml.appendChild(trBotom);
+                    tableHtml.appendChild(trBottom);
                     break;
                 case 'Left':
                     var trTable = mxui.dom.create('tr', {
