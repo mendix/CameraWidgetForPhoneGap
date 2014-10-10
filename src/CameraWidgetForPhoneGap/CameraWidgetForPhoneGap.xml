@@ -52,6 +52,12 @@
             <category>Image quality</category>
             <description>The height of the image.</description>
         </property>
+        <property key="onchangemf" type="microflow" required="false">
+            <caption>On change microflow</caption>
+            <category>Events</category>
+            <description></description> 
+            <returnType type="Void"/>
+        </property>
 	</properties>
 </widget>
 

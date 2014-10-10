@@ -170,6 +170,9 @@
         _setPicture: function(url) {
             this._imageUrl = url;
             this._setThumbnail(url);
+            if (url !== '') {
+                this._executeMicroflow();
+            }
         },
 
         _setThumbnail: function(url) {
@@ -208,6 +211,17 @@
 
             var ft = new FileTransfer();
             ft.upload(this._imageUrl, url, succes, error, options);
+        },
+
+        _executeMicroflow : function () {
+            if (this.onchangemf && this._contextObj) {
+                mx.processor.xasAction({
+                    error       : function() {},
+                    actionname  : this.onchangemf,
+                    applyto     : 'selection',
+                    guids       : [this._contextObj.getGuid()]
+                });
+            }
         },
 
         update: function(obj, callback) {
