@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <package xmlns="http://www.mendix.com/package/1.0/">
-	<clientModule name="CameraWidgetForPhonegap widget" version="3.0" xmlns="http://www.mendix.com/clientModule/1.0/">
+	<clientModule name="CameraWidgetForPhoneGap widget" version="3.0" xmlns="http://www.mendix.com/clientModule/1.0/">
 		<widgetFiles>
-			<widgetFile path="CameraWidgetForPhonegap/CameraWidgetForPhonegap.xml"/>
+			<widgetFile path="CameraWidgetForPhoneGap/CameraWidgetForPhoneGap.xml"/>
 		</widgetFiles>
 		<files>
-			<file path="CameraWidgetForPhonegap/widget/"/>
+			<file path="CameraWidgetForPhoneGap/widget/"/>
 		</files>
 	</clientModule>
 </package>

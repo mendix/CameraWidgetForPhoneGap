@@ -1,11 +1,11 @@
 /*jslint white: true nomen: true plusplus: true */
-/*global mx, mxui, mendix, dojo, require, console, define, module, logger, Camera, FileUploadOptions, FileTransfer */
+/*global mx, mxui, mendix, dojo, require, console, define, module, Camera, FileUploadOptions, FileTransfer */
 /**
 
 	CameraWidgetForPhonegap
 	========================
 
-	@file      : CameraWidgetForPhonegap.js
+	@file      : CameraWidgetForPhoneGap.js
 	@version   : 1.0
 	@author    : Roeland Salij & Richard Edens
 	@date      : Friday, December 12, 2014
@@ -25,14 +25,14 @@
     require([
 
         'mxui/widget/_WidgetBase', 'dijit/_Widget', 'dijit/_TemplatedMixin',
-        'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/on', 'dojo/_base/lang', 'dojo/_base/declare', 'dojo/text'
+        'mxui/dom', 'dojo/dom-construct', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/on', 'dojo/_base/lang', 'dojo/_base/declare', 'dojo/text'
 
-    ], function (_WidgetBase, _Widget, _Templated, domMx, dom, domQuery, domProp, domGeom, domClass, domStyle, on, lang, declare, text) {
+    ], function (_WidgetBase, _Widget, _Templated, domConstruct, domMx, dom, domQuery, domProp, domGeom, domClass, domStyle, on, lang, declare, text) {
 
-        dojo.provide('CameraWidgetForPhonegap.widget.CameraWidgetForPhonegap');
+        dojo.provide('CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap');
         
         // Declare widget.
-        return declare('CameraWidgetForPhonegap.widget.CameraWidgetForPhonegap', [ _WidgetBase, _Widget, _Templated ], {
+        return declare('CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap', [ _WidgetBase, _Widget, _Templated ], {
 
             /**
              * Internal variables.
@@ -51,7 +51,7 @@
             targetHeight: 150,
 
             // Template path
-            templatePath: require.toUrl('CameraWidgetForPhonegap/widget/templates/CameraWidgetForPhonegap.html'),
+            templatePath: require.toUrl('CameraWidgetForPhoneGap/widget/templates/CameraWidgetForPhoneGap.html'),
 
             /**
              * Mendix Widget methods.
@@ -62,7 +62,7 @@
             postCreate: function () {
 
                 // postCreate
-                logger.log('CameraWidgetForPhonegap - postCreate');
+                console.log('CameraWidgetForPhonegap - postCreate');
 
                 // Load CSS ... automaticly from ui directory
 
@@ -75,15 +75,12 @@
                 // Setup events
                 this._setupEvents();
 
-                // Show message
-                this._showMessage();
-
             },
 
             // Startup is fired after the properties of the widget are set.
             startup: function () {
                 // postCreate
-                logger.log('CameraWidgetForPhonegap - startup');
+                console.log('CameraWidgetForPhonegap - startup');
             },
 
             /**
@@ -91,48 +88,11 @@
              */
 
             update: function (obj, callback) {
-                // startup
-                logger.log('CameraWidgetForPhonegap - update');
-
-                // Release handle on previous object, if any.
-                if (this._handle) {
-                    mx.data.unsubscribe(this._handle);
-                }
-                
-                if (obj === null) {
-                    // Sorry no data no show!
-                    logger.log('CameraWidgetForPhonegap  - update - We did not get any context object!');
-                } else {
-
-                    // Load data
-                    this._loadData();
-
-                    // Subscribe to object updates.
-                    this._handle = mx.data.subscribe({
-                        guid: this._contextObj.getGuid(),
-                        callback: lang.hitch(this, function(obj){
-
-                            mx.data.get({
-                                guids: [obj],
-                                callback: lang.hitch(this, function (objs) {
-
-                                    // Set the object as background.
-                                    this._contextObj = objs[0];
-
-                                    // Load data again.
-                                    this._loadData();
-
-                                })
-                            });
-
-                        })
-                    });
-                }
-
-                // Execute callback.
-                if(typeof callback !== 'undefined'){
-                    callback();
-                }
+                this._applyContext(obj, callback);
+            },
+            
+            applyContext: function (obj, callback) {
+                this._applyContext(obj, callback);
             },
             
             uninitialize: function () {
@@ -147,6 +107,73 @@
              * Extra setup widget methods.
              * ======================
              */
+            _applyContext: function(obj, callback) {
+                
+                // Apply context
+                if(typeof obj !== 'undefined' && obj !== null){
+                    
+                    if(typeof obj.trackId !== 'undefined'){
+                        mx.data.get({
+                            guid    : obj.trackId,
+                            callback : lang.hitch(this, function(callback, obj) {
+                                this._applyContext(obj, callback);
+                            }, callback)
+                        });
+                    } else {
+                        
+                        this._contextObj = obj;
+
+                        // startup
+                        console.log('CameraWidgetForPhonegap - update');
+
+                        // Release handle on previous object, if any.
+                        if (this._handle) {
+                            mx.data.unsubscribe(this._handle);
+                        }
+
+                        if (obj === null) {
+                            // Sorry no data no show!
+                            console.log('CameraWidgetForPhonegap  - update - We did not get any context object!');
+                        } else {
+
+                            // Load data
+                            this._loadData();
+
+                            // Subscribe to object updates.
+                            if(typeof this._contextObj !== 'undefined' && this._contextObj !== null){
+                                this._handle = mx.data.subscribe({
+                                    guid: this._contextObj.getGuid(),
+                                    callback: lang.hitch(this, function(obj){
+
+                                        mx.data.get({
+                                            guids: [obj],
+                                            callback: lang.hitch(this, function (objs) {
+
+                                                // Set the object as background.
+                                                this._contextObj = objs[0];
+
+                                                // Load data again.
+                                                this._loadData();
+
+                                            })
+                                        });
+
+                                    })
+                                });
+                            }
+                        
+                        }
+                        
+                    }
+                    
+                }
+                
+                // Execute callback.
+                if(typeof callback !== 'undefined'){
+                    callback();
+                }
+            },
+            
             _setupWidget: function () {
             
                 domClass.add(this.domNode, 'wx-CameraWidgetForPhoneGap-container');
@@ -154,7 +181,7 @@
 
             // Create child nodes.
             _createChildNodes: function () {
-                logger.log('CameraWidgetForPhonegap - createChildNodes events');
+                console.log('CameraWidgetForPhonegap - createChildNodes events');
 
                 // Assigning externally loaded library to internal variable inside function.
                 var button = null,
@@ -294,7 +321,7 @@
 
             // Attach events to newly created nodes.
             _setupEvents: function () {
-                logger.log('CameraWidgetForPhonegap - setup events');
+                console.log('CameraWidgetForPhonegap - setup events');
 
             },
 
@@ -304,13 +331,15 @@
              */
             _loadData: function () {
 
-                if(!this._contextObj.inheritsFrom("System.Filedocument")) {
-                    var span = mxui.dom.create('span', 
-                                               {'class': 'alert-danger'},
-                                               'Context object is not suitable for images.');
+                if(typeof this._contextObj !== 'undefined' && this._contextObj !== null){
+                    if(!this._contextObj.inheritsFrom("System.FileDocument")) {
+                        var span = mxui.dom.create('span', 
+                                                   {'class': 'alert-danger'},
+                                                   'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".');
 
-                    this.domNode.clear();
-                    this.domNode.appendChild(span);
+                        domConstruct.empty(this.domNode);
+                        this.domNode.appendChild(span);
+                    }
                 }
              
             },
