@@ -1,234 +1,430 @@
+/*jslint white: true nomen: true plusplus: true */
+/*global mx, mxui, mendix, dojo, require, console, define, module, logger, Camera, FileUploadOptions, FileTransfer */
+/**
+
+	CameraWidgetForPhonegap
+	========================
+
+	@file      : CameraWidgetForPhonegap.js
+	@version   : 1.0
+	@author    : Roeland Salij & Richard Edens
+	@date      : Friday, December 12, 2014
+	@copyright : Mendix Technology BV
+	@license   : Apache License, Version 2.0, January 2004
+
+	Documentation
+    ========================
+	Describe your widget here.
+
+*/
+
 (function() {
     'use strict';
 
-    dojo.declare('CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap', mxui.widget._WidgetBase, {
+    // test
+    require([
 
-        _imageUrl: '',
-        _contextObj: null,
-        _previewNode: null,
-        _imageNode: null,
+        'mxui/widget/_WidgetBase', 'dijit/_Widget', 'dijit/_TemplatedMixin',
+        'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/on', 'dojo/_base/lang', 'dojo/_base/declare', 'dojo/text'
 
-        targetWidth: 150,
-        targetHeight: 150,
+    ], function (_WidgetBase, _Widget, _Templated, domMx, dom, domQuery, domProp, domGeom, domClass, domStyle, on, lang, declare, text) {
 
+        dojo.provide('CameraWidgetForPhonegap.widget.CameraWidgetForPhonegap');
+        
+        // Declare widget.
+        return declare('CameraWidgetForPhonegap.widget.CameraWidgetForPhonegap', [ _WidgetBase, _Widget, _Templated ], {
 
-        postCreate: function() {
-            dojo.addClass(this.domNode, 'wx-CameraWidgetForPhoneGap-container');
+            /**
+             * Internal variables.
+             * ======================
+             */
+            _contextObj: null,
+            _handle: null,
 
-            var button = null,
-                preview = null,
-                tableHtml = null,
-                trTop = null,
-                trBottom = null,
-                tdTop = null,
-                tdBottom = null,
-                trTable = null,
-                tdLeft = null,
-                tdRight = null;
+            // Extra variables
+            _imageUrl: '',
+            _previewNode: null,
+            _imageNode: null,
+            _tableHtml: null,
 
-            button = this._setupButton();
-            preview = this._setupPreview();
+            targetWidth: 150,
+            targetHeight: 150,
 
-            var tableHtml = mxui.dom.create('table', {
-                'class': 'wx-CameraWidgetForPhoneGap-table'
-            });
+            // Template path
+            templatePath: require.toUrl('CameraWidgetForPhonegap/widget/templates/CameraWidgetForPhonegap.html'),
 
-            switch(this.imageLocation){
+            /**
+             * Mendix Widget methods.
+             * ======================
+             */
 
-                case 'Above':
-                    trTop = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    });
-                    tdTop = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+            // PostCreate is fired after the properties of the widget are set.
+            postCreate: function () {
 
-                    trBottom = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
-                    });
-                    tdBottom = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
-                    });
+                // postCreate
+                logger.log('CameraWidgetForPhonegap - postCreate');
 
-                    tdTop.appendChild(preview);
-                    trTop.appendChild(tdTop);
+                // Load CSS ... automaticly from ui directory
 
-                    tdBottom.appendChild(button);
-                    trBottom.appendChild(tdBottom);
+                // Setup widgets
+                this._setupWidget();
 
-                    tableHtml.appendChild(trTop);
-                    tableHtml.appendChild(trBottom);
-                    break;
-                case 'Below':
+                // Create childnodes
+                this._createChildNodes();
 
-                    trTop = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    });
-                    tdTop = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+                // Setup events
+                this._setupEvents();
 
-                    trBottom = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
-                    });
-                    tdBottom = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
-                    });
+                // Show message
+                this._showMessage();
 
-                    tdTop.appendChild(button);
-                    trTop.appendChild(tdTop);
+            },
 
-                    tdBottom.appendChild(preview);
-                    trBottom.appendChild(tdBottom);
+            // Startup is fired after the properties of the widget are set.
+            startup: function () {
+                // postCreate
+                logger.log('CameraWidgetForPhonegap - startup');
+            },
 
-                    tableHtml.appendChild(trTop);
-                    tableHtml.appendChild(trBottom);
-                    break;
-                case 'Left':
-                    var trTable = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    }), tdLeft = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    }), tdRight = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+            /**
+             * What to do when data is loaded?
+             */
 
-                    tdLeft.appendChild(preview);
-                    trTable.appendChild(tdLeft);
+            update: function (obj, callback) {
+                // startup
+                logger.log('CameraWidgetForPhonegap - update');
 
-                    tdRight.appendChild(button);
-                    trTable.appendChild(tdRight);
-
-                    tableHtml.appendChild(trTable);
-                    break;
-                case 'Right':
-                default:
-                    var trTable = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    }), tdLeft = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    }), tdRight = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
-
-                    tdLeft.appendChild(button);
-                    trTable.appendChild(tdLeft);
-
-                    tdRight.appendChild(preview);
-                    trTable.appendChild(tdRight);
-
-                    tableHtml.appendChild(trTable);
-                    break;
-            }
-
-            this.domNode.appendChild(tableHtml);
-
-            this.listen('save', this._sendFile);
-        },
-
-        _setupButton: function() {
-            var button = mxui.dom.create('button', {
-                'type': 'button',
-                'class': 'btn btn-primary wx-CameraWidgetForPhoneGap-button ' + this.buttonClass
-            }, this.buttonText);
-
-            this.connect(button, 'click', '_getPicture');
-            return button;
-        },
-
-        _setupPreview: function() {
-            this._previewNode = mxui.dom.create('div', {
-                'class': 'wx-CameraWidgetForPhoneGap-preview'
-            });
-            return this._previewNode;
-        },
-
-        _getPicture: function() {
-            if (!navigator.camera) {
-                mx.ui.error('Unable to detect camera.');
-                return;
-            }
-
-            var success = dojo.hitch(this, '_setPicture');
-
-            var error = function(e) {
-                if(typeof e.code !== 'undefined'){
-                    mx.ui.error('Retrieving image from camera failed with error code ' + e.code);
+                // Release handle on previous object, if any.
+                if (this._handle) {
+                    mx.data.unsubscribe(this._handle);
                 }
-            };
+                
+                if (obj === null) {
+                    // Sorry no data no show!
+                    logger.log('CameraWidgetForPhonegap  - update - We did not get any context object!');
+                } else {
 
-            // TODO: get rid of temp image files
-            navigator.camera.getPicture(success, error, {
-                quality: 50,
-                destinationType: Camera.DestinationType.FILE_URL,
-                targetWidth: this.targetWidth,
-                targetHeight: this.targetHeight,
-                correctOrientation: true
-            });
-        },
+                    // Load data
+                    this._loadData();
 
-        _setPicture: function(url) {
-            this._imageUrl = url;
-            this._setThumbnail(url);
-            if (url !== '') {
-                this._executeMicroflow();
-            }
-        },
+                    // Subscribe to object updates.
+                    this._handle = mx.data.subscribe({
+                        guid: this._contextObj.getGuid(),
+                        callback: lang.hitch(this, function(obj){
 
-        _setThumbnail: function(url) {
-            dojo.style(this._previewNode, {
-               'background-image': url ? 'url(' + url + ')' : 'none'
-            });
+                            mx.data.get({
+                                guids: [obj],
+                                callback: lang.hitch(this, function (objs) {
 
-            this._previewNode.style.display = url ? '' : 'none';
-            this._previewNode.style.width = this.imageWidth ? this.imageWidth + 'px' : '100px';
-            this._previewNode.style.height = this.imageHeight ? this.imageHeight + 'px' : '100px';
-        },
+                                    // Set the object as background.
+                                    this._contextObj = objs[0];
 
-        _sendFile: function(callback) {
-            if (!this._imageUrl) {
-                callback();
-                return;
-            }
+                                    // Load data again.
+                                    this._loadData();
 
-            var options = new FileUploadOptions();
-            options.fileKey = 'mxdocument';
-            options.fileName = this._imageUrl.substr(this._imageUrl.lastIndexOf('/') + 1);
-            options.mimeType = 'image/jpeg';
+                                })
+                            });
 
-            var url = mx.appUrl +
-                'file?guid=' + this._contextObj.getGuid() +
-                '&csrfToken=' + mx.session.getCSRFToken();
+                        })
+                    });
+                }
 
-            var succes = dojo.hitch(this, function() {
-                this._setPicture('');
-                callback();
-            });
+                // Execute callback.
+                if(typeof callback !== 'undefined'){
+                    callback();
+                }
+            },
+            
+            uninitialize: function () {
+                //TODO, clean up only events
+                if (this._handle) {
+                    mx.data.unsubscribe(this._handle);
+                }
+            },
 
-            var error = function(e) {
-                mx.ui.error('Uploading image failed with error code ' + e.code);
-            };
 
-            var ft = new FileTransfer();
-            ft.upload(this._imageUrl, url, succes, error, options);
-        },
+            /**
+             * Extra setup widget methods.
+             * ======================
+             */
+            _setupWidget: function () {
+            
+                domClass.add(this.domNode, 'wx-CameraWidgetForPhoneGap-container');
+            },
 
-        _executeMicroflow : function () {
-            if (this.onchangemf && this._contextObj) {
-                mx.processor.xasAction({
-                    error       : function() {},
-                    actionname  : this.onchangemf,
-                    applyto     : 'selection',
-                    guids       : [this._contextObj.getGuid()]
+            // Create child nodes.
+            _createChildNodes: function () {
+                logger.log('CameraWidgetForPhonegap - createChildNodes events');
+
+                // Assigning externally loaded library to internal variable inside function.
+                var button = null,
+                    preview = null,
+                    tableHtml = null,
+                    trTop = null,
+                    trBottom = null,
+                    tdTop = null,
+                    tdBottom = null,
+                    trTable = null,
+                    tdLeft = null,
+                    tdRight = null;
+
+                button = this._setupButton();
+                preview = this._setupPreview();
+
+                tableHtml = mxui.dom.create('table', {
+                    'class': 'wx-CameraWidgetForPhoneGap-table'
                 });
+
+                switch(this.imageLocation){
+
+                    case 'Above':
+                        trTop = mxui.dom.create('tr', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                        });
+                        tdTop = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+
+                        trBottom = mxui.dom.create('tr', {
+                            'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
+                        });
+                        tdBottom = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
+                        });
+
+                        tdTop.appendChild(preview);
+                        trTop.appendChild(tdTop);
+
+                        tdBottom.appendChild(button);
+                        trBottom.appendChild(tdBottom);
+
+                        tableHtml.appendChild(trTop);
+                        tableHtml.appendChild(trBottom);
+                        break;
+                    case 'Below':
+
+                        trTop = mxui.dom.create('tr', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                        });
+                        tdTop = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+
+                        trBottom = mxui.dom.create('tr', {
+                            'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
+                        });
+                        tdBottom = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
+                        });
+
+                        tdTop.appendChild(button);
+                        trTop.appendChild(tdTop);
+
+                        tdBottom.appendChild(preview);
+                        trBottom.appendChild(tdBottom);
+
+                        tableHtml.appendChild(trTop);
+                        tableHtml.appendChild(trBottom);
+                        
+                        break;
+                    case 'Left':
+                        trTable = mxui.dom.create('tr', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                        });
+                        tdLeft = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+                        tdRight = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+
+                        tdLeft.appendChild(preview);
+                        trTable.appendChild(tdLeft);
+
+                        tdRight.appendChild(button);
+                        trTable.appendChild(tdRight);
+
+                        tableHtml.appendChild(trTable);
+                        break;
+                    case 'Right':
+                        trTable = mxui.dom.create('tr', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                        });
+                        tdLeft = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+                        tdRight = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+
+                        tdLeft.appendChild(button);
+                        trTable.appendChild(tdLeft);
+
+                        tdRight.appendChild(preview);
+                        trTable.appendChild(tdRight);
+
+                        tableHtml.appendChild(trTable);
+                        break;
+                    default:
+                        trTable = mxui.dom.create('tr', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                        });
+                        tdLeft = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+                        tdRight = mxui.dom.create('td', {
+                            'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                        });
+
+                        tdLeft.appendChild(button);
+                        trTable.appendChild(tdLeft);
+
+                        tdRight.appendChild(preview);
+                        trTable.appendChild(tdRight);
+
+                        tableHtml.appendChild(trTable);
+                        break;
+                }
+
+                this._tableHtml = tableHtml;
+
+                this.domNode.appendChild(tableHtml);
+
+            },
+
+            // Attach events to newly created nodes.
+            _setupEvents: function () {
+                logger.log('CameraWidgetForPhonegap - setup events');
+
+            },
+
+            /**
+             * Interaction widget methods.
+             * ======================
+             */
+            _loadData: function () {
+
+                if(!this._contextObj.inheritsFrom("System.Filedocument")) {
+                    var span = mxui.dom.create('span', 
+                                               {'class': 'alert-danger'},
+                                               'Context object is not suitable for images.');
+
+                    this.domNode.clear();
+                    this.domNode.appendChild(span);
+                }
+             
+            },
+            
+            _setupButton: function() {
+                var button = mxui.dom.create('button', {
+                    'type': 'button',
+                    'class': 'btn btn-primary wx-CameraWidgetForPhoneGap-button ' + this.buttonClass
+                }, this.buttonText);
+
+                this.connect(button, 'click', '_getPicture');
+                return button;
+            },
+
+            _setupPreview: function() {
+                this._previewNode = mxui.dom.create('div', {
+                    'class': 'wx-CameraWidgetForPhoneGap-preview'
+                });
+                return this._previewNode;
+            },
+
+            _getPicture: function() {
+                var success = null,
+                    error = null;
+                
+                if (!navigator.camera) {
+                    mx.ui.error('Unable to detect camera.');
+                    return;
+                }
+
+                success = dojo.hitch(this, '_setPicture');
+
+                error = function(e) {
+                    if(typeof e.code !== 'undefined'){
+                        mx.ui.error('Retrieving image from camera failed with error code ' + e.code);
+                    }
+                };
+
+                // TODO: get rid of temp image files
+                navigator.camera.getPicture(success, error, {
+                    quality: 50,
+                    destinationType: Camera.DestinationType.FILE_URL,
+                    targetWidth: this.targetWidth,
+                    targetHeight: this.targetHeight,
+                    correctOrientation: true
+                });
+            },
+
+            _setPicture: function(url) {
+                this._imageUrl = url;
+                this._setThumbnail(url);
+                if (url !== '') {
+                    this._executeMicroflow();
+                }
+            },
+
+            _setThumbnail: function(url) {
+                dojo.style(this._previewNode, {
+                    'background-image': url ? 'url(' + url + ')' : 'none'
+                });
+
+                this._previewNode.style.display = url ? '' : 'none';
+                this._previewNode.style.width = this.imageWidth ? this.imageWidth + 'px' : '100px';
+                this._previewNode.style.height = this.imageHeight ? this.imageHeight + 'px' : '100px';
+            },
+
+            _sendFile: function(callback) {
+                var options = null,
+                    url = null,
+                    success = null,
+                    error = null,
+                    ft = null;
+                
+                if (!this._imageUrl) {
+                    callback();
+                    return;
+                }
+
+                options = new FileUploadOptions();
+                options.fileKey = 'mxdocument';
+                options.fileName = this._imageUrl.substr(this._imageUrl.lastIndexOf('/') + 1);
+                options.mimeType = 'image/jpeg';
+
+                url = mx.appUrl +
+                    'file?guid=' + this._contextObj.getGuid() +
+                    '&csrfToken=' + mx.session.getCSRFToken();
+
+                success = dojo.hitch(this, function() {
+                    this._setPicture('');
+                    callback();
+                });
+
+                error = function(e) {
+                    mx.ui.error('Uploading image failed with error code ' + e.code);
+                };
+
+                ft = new FileTransfer();
+                ft.upload(this._imageUrl, url, success, error, options);
+            },
+
+            _executeMicroflow : function () {
+                if (this.onchangemf && this._contextObj) {
+                    mx.processor.xasAction({
+                        error       : function() {},
+                        actionname  : this.onchangemf,
+                        applyto     : 'selection',
+                        guids       : [this._contextObj.getGuid()]
+                    });
+                }
             }
-        },
 
-        update: function(obj, callback) {
-            this._contextObj = obj;
-            this._setPicture('');
-
-            callback();
-        }
+        });
     });
-})();
+
+}());
+
+

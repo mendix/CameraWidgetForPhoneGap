@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<clsMXWidgetSettings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <WidgetName>CameraWidgetForPhoneGap</WidgetName>
+  <SourcePath>C:\Mendix\Widgets\GitHub\CameraWidgetForPhoneGap\src</SourcePath>
+  <DestinationPath>C:\Mendix\Widgets\GitHub\CameraWidgetForPhoneGap\test</DestinationPath>
+  <Monitor>false</Monitor>
+</clsMXWidgetSettings>

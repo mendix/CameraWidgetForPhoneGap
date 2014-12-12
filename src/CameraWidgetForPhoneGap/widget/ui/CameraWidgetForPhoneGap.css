@@ -1,3 +1,10 @@
+/**
+ * Copyright 2014 - Mendix Technology BV
+ *
+ * Author: Roeland Salij & Richard Edens
+ * Description: PhoneGap Widget
+ */
+
 .wx-CameraWidgetForPhoneGap-preview {
     display: inline-block;
     vertical-align: top;
