@@ -1,6 +1,6 @@
 /*jslint white: true nomen: true plusplus: true */
 /*global mx, mxui, mendix, dojo, require, console, define, module, Camera, FileUploadOptions, FileTransfer */
-/**
+/*mendix
 
 	CameraWidgetForPhonegap
 	========================
@@ -89,6 +89,7 @@
 
             update: function (obj, callback) {
                 this._applyContext(obj, callback);
+				this._setPicture('');
             },
             
             applyContext: function (obj, callback) {
@@ -149,9 +150,7 @@
                                             guids: [obj],
                                             callback: lang.hitch(this, function (objs) {
 
-                                                // Set the object as background.
                                                 this._contextObj = objs[0];
-
                                                 // Load data again.
                                                 this._loadData();
 
@@ -317,6 +316,7 @@
 
                 this.domNode.appendChild(tableHtml);
 
+				this.listen('save', this._sendFile);
             },
 
             // Attach events to newly created nodes.
