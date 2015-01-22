@@ -6,9 +6,9 @@
 	========================
 
 	@file      : CameraWidgetForPhoneGap.js
-	@version   : 1.0
-	@author    : Roeland Salij & Richard Edens
-	@date      : Friday, December 12, 2014
+	@version   : 2.2
+	@author    : Richard Edens & Roeland Salij
+	@date      : Friday, Jan 22, 2015
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
 
