@@ -271,9 +271,6 @@ require([
         _setPicture: function (url) {
             this._imageUrl = url;
             this._setThumbnail(url);
-            if (url !== '') {
-                this._executeMicroflow();
-            }
         },
 
         _setThumbnail: function (url) {
@@ -346,6 +343,7 @@ require([
 
             success = function () {
                 self._setPicture('');
+                self._executeMicroflow();
                 callback();
             };
             
