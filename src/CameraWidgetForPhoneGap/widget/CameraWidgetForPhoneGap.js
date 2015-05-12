@@ -40,6 +40,7 @@ require([
         imageLocation: 'Right',
         targetWidth: 150,
         targetHeight: 150,
+        autoSaveEnabled: false,
         onchangemf: '',
 
         //internal variables
@@ -278,15 +279,15 @@ require([
                 width = this.imageWidth ? this.imageWidth + 'px' : '100px',
                 height = this.imageHeight ? this.imageHeight + 'px' : '100px',
                 background = url ? 'url(' + url + ')' : 'none';
-            
+
             domStyle.set(this._previewNode, {
-                'background-image': background, 
+                'background-image': background,
                 'display': urlDisplay,
-                'width' : width,
-                'height' : height
+                'width': width,
+                'height': height
             });
 
-           
+
         },
 
         _getPicture: function () {
@@ -300,7 +301,13 @@ require([
             }
 
             success = function (url) {
-                self._setPicture(url);
+                if (self.autoSaveEnabled) {
+                    self._autoSave(url);
+                } else {
+                    self._setPicture(url);
+                }
+
+
             };
 
             error = function (e) {
@@ -318,15 +325,15 @@ require([
                 correctOrientation: true
             });
         },
-        
+
         _sendFile: function (callback) {
             var options = null,
                 url = null,
                 success = null,
                 error = null,
-                ft = null, 
+                ft = null,
                 self = this;
-            
+
             if (!this._imageUrl) {
                 callback();
                 return;
@@ -346,8 +353,8 @@ require([
                 self._executeMicroflow();
                 callback();
             };
-            
-            
+
+
             error = function (e) {
                 mx.ui.error('Uploading image failed with error code ' + e.code);
             };
@@ -356,6 +363,17 @@ require([
             ft.upload(this._imageUrl, url, success, error, options);
         },
 
+        _autoSave: function (url) {
+            this._imageUrl = url;
+            if(this._contextObj){
+                 mx.data.save({
+                    mxobj: this._contextObj,
+                     callback: lang.hitch(this, function(){
+                       this._sendFile();  
+                     })
+                });
+            }
+        },
 
 
         _resetSubscriptions: function () {

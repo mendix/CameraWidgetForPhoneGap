@@ -30,9 +30,11 @@ The label text that is shown on the button.
 #### Class
 An optional class to be placed directly on the button dom node.
 
-### Events
-#### On change microflow
-An optional microflow that will be triggered when an image is taken.
+### Behaviour
+#### On save microflow
+An optional microflow that will be triggered when the object is saved.
+#### Autosave
+Optional setting to auto-save an image to the contextobject. use the on save mf to commit the object and run further actions.
 
 ### Image quality
 Be aware that setting this higher will be more taxing and will take longer to upload.
