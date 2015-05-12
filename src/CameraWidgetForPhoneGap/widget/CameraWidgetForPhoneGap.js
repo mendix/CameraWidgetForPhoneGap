@@ -1,180 +1,98 @@
-/*jslint white: true, nomen: true, plusplus: true */
-/*global mx, mxui, mendix, dojo, require, console, define, module, Camera, FileUploadOptions, FileTransfer, navigator */
-/*mendix
-
-	CameraWidgetForPhonegap
-	========================
+/*jslint white:true, nomen: true, plusplus: true */
+/*global mx, define, require, browser, devel, console, document, Camera, FileUploadOptions, FileTransfer, navigator */
+/*mendix */
+/*
+    CameraWidgetForPhoneGap
+    ========================
 
 	@file      : CameraWidgetForPhoneGap.js
-	@version   : 2.2
-	@author    : Richard Edens & Roeland Salij
+	@version   : 2.3
+	@author    : Pauline Oudeman, Richard Edens & Roeland Salij
 	@date      : Friday, Jan 22, 2015
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
 
-	Documentation
-    ========================
-	Describe your widget here.
 
+    Documentation
+    ========================
+    Describe your widget here.
 */
 
-// test
+// Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
 require([
-
-    'mxui/widget/_WidgetBase', 'dijit/_TemplatedMixin',
-    'mxui/dom', 'dojo/dom-construct', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/on', 'dojo/_base/lang', 'dojo/_base/declare', 'dojo/text',
+    'dojo/_base/declare', 'mxui/widget/_WidgetBase', 'dijit/_TemplatedMixin',
+    'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 'dojo/text', 'dojo/html', 'dojo/_base/event',
     'dojo/text!CameraWidgetForPhoneGap/widget/template/CameraWidgetForPhoneGap.html'
-
-], function (_WidgetBase, _TemplatedMixin, domConstruct, domMx, dom, domQuery, domProp, domGeom, domClass, domStyle, on, lang, declare, text, widgetTemplate) {
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, html, event, widgetTemplate) {
     'use strict';
 
-    // Declare widget.
-    return declare('CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap', [ _WidgetBase, _TemplatedMixin ], {
+    // Declare widget's prototype.
+    return declare('CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap', [_WidgetBase, _TemplatedMixin], {
 
-        // Template path
+        // _TemplatedMixin will create our dom node using this HTML template.
         templateString: widgetTemplate,
-
-        /**
-         * Internal variables.
-         * ======================
-         */
-        _contextObj: null,
-        _handle: null,
-
-        // Extra variables
-        _imageUrl: '',
-        _previewNode: null,
-        _imageNode: null,
-        _tableHtml: null,
-
+        // Parameters configured in the Modeler.
+        buttonClass: 'wx-mxwx-button-extra',
+        buttonText: 'activate camera',
+        imageContainerClass: 'wx-mxwx-imagecontainer-extra',
+        imageWidth: 150,
+        imageHeight: 150,
+        imageLocation: 'Right',
         targetWidth: 150,
         targetHeight: 150,
+        onchangemf: '',
 
-        /**
-         * Mendix Widget methods.
-         * ======================
-         */
+        //internal variables
+        _contextObj: null,
+        _handles: null,
+        _imageUrl: null,
+        _previewNode: null,
 
-        // PostCreate is fired after the properties of the widget are set.
+
+        constructor: function () {
+            this._handles = [];
+        },
+
         postCreate: function () {
-
             // postCreate
             console.log('CameraWidgetForPhonegap - postCreate');
-
-            // Load CSS ... automaticly from ui directory
-
             // Setup widgets
             this._setupWidget();
-
             // Create childnodes
             this._createChildNodes();
-
-            // Setup events
-            this._setupEvents();
-
         },
-
-        // Startup is fired after the properties of the widget are set.
-        startup: function () {
-            // postCreate
-            console.log('CameraWidgetForPhonegap - startup');
-        },
-
-        /**
-         * What to do when data is loaded?
-         */
 
         update: function (obj, callback) {
-            this._applyContext(obj, callback);
-            this._setPicture('');
-        },
-
-        applyContext: function (obj, callback) {
-            this._applyContext(obj, callback);
-        },
-
-        uninitialize: function () {
-            //TODO, clean up only events
-            if (this._handle) {
-                mx.data.unsubscribe(this._handle);
-            }
-        },
-
-
-        /**
-         * Extra setup widget methods.
-         * ======================
-         */
-        _applyContext: function(obj, callback) {
-
-            // Apply context
-            if(typeof obj !== 'undefined' && obj !== null){
-
-                if(typeof obj.trackId !== 'undefined'){
-                    mx.data.get({
-                        guid    : obj.trackId,
-                        callback : lang.hitch(this, function(callback, obj) {
-                            this._applyContext(obj, callback);
-                        }, callback)
-                    });
-                } else {
-
-                    this._contextObj = obj;
-
-                    // startup
-                    console.log('CameraWidgetForPhonegap - update');
-
-                    // Release handle on previous object, if any.
-                    if (this._handle) {
-                        this.unsubscribe(this._handle);
-                    }
-
-                    if (obj === null) {
-                        // Sorry no data no show!
-                        console.log('CameraWidgetForPhonegap  - update - We did not get any context object!');
-                    } else {
-
-                        // Load data
-                        this._loadData();
-
-                        // Subscribe to object updates.
-                        if(typeof this._contextObj !== 'undefined' && this._contextObj !== null){
-                            this._handle = this.subscribe({
-                                guid: this._contextObj.getGuid(),
-                                callback: lang.hitch(this, function(obj){
-
-                                    mx.data.get({
-                                        guids: [obj],
-                                        callback: lang.hitch(this, function (objs) {
-
-                                            this._contextObj = objs[0];
-                                            // Load data again.
-                                            this._loadData();
-
-                                        })
-                                    });
-
-                                })
-                            });
-                        }
-
-                    }
-
-                }
-
+            console.log('CameraWidgetForPhonegap - update');
+            if (obj) {
+                // Load data
+                this._contextObj = obj;
+                this._loadData();
+                this._resetSubscriptions();
+                this._setPicture('');
+            } else {
+                // Sorry no data no show!
+                console.log('CameraWidgetForPhonegap  - update - We did not get any context object!');
             }
 
-            // Execute callback.
-            if(typeof callback !== 'undefined'){
+            if (callback) {
                 callback();
             }
         },
+
+        uninitialize: function () {
+            //clean up window events here
+        },
+
+        /**
+         * Building methods
+         * =================
+         */
 
         _setupWidget: function () {
             domClass.add(this.domNode, 'wx-CameraWidgetForPhoneGap-container');
         },
 
-        // Create child nodes.
         _createChildNodes: function () {
             console.log('CameraWidgetForPhonegap - createChildNodes events');
 
@@ -193,155 +111,128 @@ require([
             button = this._setupButton();
             preview = this._setupPreview();
 
-            tableHtml = mxui.dom.create('table', {
+            tableHtml = domConstruct.create('table', {
                 'class': 'wx-CameraWidgetForPhoneGap-table'
             });
 
-            switch(this.imageLocation){
+            switch (this.imageLocation) {
 
-                case 'Above':
-                    trTop = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    });
-                    tdTop = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+            case 'Above':
+                trTop = domConstruct.create('tr', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                });
+                tdTop = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
 
-                    trBottom = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
-                    });
-                    tdBottom = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
-                    });
+                trBottom = domConstruct.create('tr', {
+                    'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
+                });
+                tdBottom = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
+                });
 
-                    tdTop.appendChild(preview);
-                    trTop.appendChild(tdTop);
+                tdTop.appendChild(preview);
+                trTop.appendChild(tdTop);
 
-                    tdBottom.appendChild(button);
-                    trBottom.appendChild(tdBottom);
+                tdBottom.appendChild(button);
+                trBottom.appendChild(tdBottom);
 
-                    tableHtml.appendChild(trTop);
-                    tableHtml.appendChild(trBottom);
-                    break;
-                case 'Below':
+                tableHtml.appendChild(trTop);
+                tableHtml.appendChild(trBottom);
+                break;
+            case 'Below':
 
-                    trTop = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    });
-                    tdTop = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+                trTop = domConstruct.create('tr', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                });
+                tdTop = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
 
-                    trBottom = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
-                    });
-                    tdBottom = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
-                    });
+                trBottom = domConstruct.create('tr', {
+                    'class': 'wx-CameraWidgetForPhoneGap-bottom-tr'
+                });
+                tdBottom = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-bottom-td'
+                });
 
-                    tdTop.appendChild(button);
-                    trTop.appendChild(tdTop);
+                tdTop.appendChild(button);
+                trTop.appendChild(tdTop);
 
-                    tdBottom.appendChild(preview);
-                    trBottom.appendChild(tdBottom);
+                tdBottom.appendChild(preview);
+                trBottom.appendChild(tdBottom);
 
-                    tableHtml.appendChild(trTop);
-                    tableHtml.appendChild(trBottom);
+                tableHtml.appendChild(trTop);
+                tableHtml.appendChild(trBottom);
 
-                    break;
-                case 'Left':
-                    trTable = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    });
-                    tdLeft = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
-                    tdRight = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+                break;
+            case 'Left':
+                trTable = domConstruct.create('tr', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                });
+                tdLeft = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
+                tdRight = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
 
-                    tdLeft.appendChild(preview);
-                    trTable.appendChild(tdLeft);
+                tdLeft.appendChild(preview);
+                trTable.appendChild(tdLeft);
 
-                    tdRight.appendChild(button);
-                    trTable.appendChild(tdRight);
+                tdRight.appendChild(button);
+                trTable.appendChild(tdRight);
 
-                    tableHtml.appendChild(trTable);
-                    break;
-                case 'Right':
-                    trTable = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    });
-                    tdLeft = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
-                    tdRight = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+                tableHtml.appendChild(trTable);
+                break;
+            case 'Right':
+                trTable = domConstruct.create('tr', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                });
+                tdLeft = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
+                tdRight = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
 
-                    tdLeft.appendChild(button);
-                    trTable.appendChild(tdLeft);
+                tdLeft.appendChild(button);
+                trTable.appendChild(tdLeft);
 
-                    tdRight.appendChild(preview);
-                    trTable.appendChild(tdRight);
+                tdRight.appendChild(preview);
+                trTable.appendChild(tdRight);
 
-                    tableHtml.appendChild(trTable);
-                    break;
-                default:
-                    trTable = mxui.dom.create('tr', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-tr'
-                    });
-                    tdLeft = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
-                    tdRight = mxui.dom.create('td', {
-                        'class': 'wx-CameraWidgetForPhoneGap-top-td'
-                    });
+                tableHtml.appendChild(trTable);
+                break;
+            default:
+                trTable = domConstruct.create('tr', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-tr'
+                });
+                tdLeft = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
+                tdRight = domConstruct.create('td', {
+                    'class': 'wx-CameraWidgetForPhoneGap-top-td'
+                });
 
-                    tdLeft.appendChild(button);
-                    trTable.appendChild(tdLeft);
+                tdLeft.appendChild(button);
+                trTable.appendChild(tdLeft);
 
-                    tdRight.appendChild(preview);
-                    trTable.appendChild(tdRight);
+                tdRight.appendChild(preview);
+                trTable.appendChild(tdRight);
 
-                    tableHtml.appendChild(trTable);
-                    break;
+                tableHtml.appendChild(trTable);
+                break;
             }
-
-            this._tableHtml = tableHtml;
 
             this.domNode.appendChild(tableHtml);
 
             this.listen('save', this._sendFile);
         },
 
-        // Attach events to newly created nodes.
-        _setupEvents: function () {
-            console.log('CameraWidgetForPhonegap - setup events');
-
-        },
-
-        /**
-         * Interaction widget methods.
-         * ======================
-         */
-        _loadData: function () {
-
-            if(typeof this._contextObj !== 'undefined' && this._contextObj !== null){
-                if(!this._contextObj.inheritsFrom("System.FileDocument")) {
-                    var span = mxui.dom.create('span', 
-                                               {'class': 'alert-danger'},
-                                               'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".');
-
-                    domConstruct.empty(this.domNode);
-                    this.domNode.appendChild(span);
-                }
-            }
-
-        },
-
-        _setupButton: function() {
-            var button = mxui.dom.create('button', {
+        _setupButton: function () {
+            var button = dom.create('button', {
                 'type': 'button',
                 'class': 'btn btn-primary wx-CameraWidgetForPhoneGap-button ' + this.buttonClass
             }, this.buttonText);
@@ -350,26 +241,73 @@ require([
             return button;
         },
 
-        _setupPreview: function() {
-            this._previewNode = mxui.dom.create('div', {
+        _setupPreview: function () {
+            this._previewNode = dom.create('div', {
                 'class': 'wx-CameraWidgetForPhoneGap-preview'
             });
             return this._previewNode;
         },
 
-        _getPicture: function() {
+
+        /**
+         * Interaction widget methods.
+         * ======================
+         */
+
+        _loadData: function () {
+
+            if (this._contextObj) {
+                if (!this._contextObj.inheritsFrom("System.FileDocument")) {
+                    var span = domConstruct.create('span', {
+                            'class': 'alert-danger'
+                        },
+                        'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".');
+                    domConstruct.empty(this.domNode);
+                    this.domNode.appendChild(span);
+                }
+            }
+
+        },
+        _setPicture: function (url) {
+            this._imageUrl = url;
+            this._setThumbnail(url);
+            if (url !== '') {
+                this._executeMicroflow();
+            }
+        },
+
+        _setThumbnail: function (url) {
+            var urlDisplay = url ? '' : 'none',
+                width = this.imageWidth ? this.imageWidth + 'px' : '100px',
+                height = this.imageHeight ? this.imageHeight + 'px' : '100px',
+                background = url ? 'url(' + url + ')' : 'none';
+            
+            domStyle.set(this._previewNode, {
+                'background-image': background, 
+                'display': urlDisplay,
+                'width' : width,
+                'height' : height
+            });
+
+           
+        },
+
+        _getPicture: function () {
             var success = null,
-                error = null;
+                error = null,
+                self = this;
 
             if (!navigator.camera) {
                 mx.ui.error('Unable to detect camera.');
                 return;
             }
 
-            success = dojo.hitch(this, '_setPicture');
+            success = function (url) {
+                self._setPicture(url);
+            };
 
-            error = function(e) {
-                if(typeof e.code !== 'undefined'){
+            error = function (e) {
+                if (typeof e.code !== 'undefined') {
                     mx.ui.error('Retrieving image from camera failed with error code ' + e.code);
                 }
             };
@@ -383,32 +321,15 @@ require([
                 correctOrientation: true
             });
         },
-
-        _setPicture: function(url) {
-            this._imageUrl = url;
-            this._setThumbnail(url);
-            if (url !== '') {
-                this._executeMicroflow();
-            }
-        },
-
-        _setThumbnail: function(url) {
-            dojo.style(this._previewNode, {
-                'background-image': url ? 'url(' + url + ')' : 'none'
-            });
-
-            this._previewNode.style.display = url ? '' : 'none';
-            this._previewNode.style.width = this.imageWidth ? this.imageWidth + 'px' : '100px';
-            this._previewNode.style.height = this.imageHeight ? this.imageHeight + 'px' : '100px';
-        },
-
-        _sendFile: function(callback) {
+        
+        _sendFile: function (callback) {
             var options = null,
                 url = null,
                 success = null,
                 error = null,
-                ft = null;
-
+                ft = null, 
+                self = this;
+            
             if (!this._imageUrl) {
                 callback();
                 return;
@@ -423,12 +344,13 @@ require([
                 'file?guid=' + this._contextObj.getGuid() +
                 '&csrfToken=' + mx.session.getCSRFToken();
 
-            success = dojo.hitch(this, function() {
-                this._setPicture('');
+            success = function () {
+                self._setPicture('');
                 callback();
-            });
-
-            error = function(e) {
+            };
+            
+            
+            error = function (e) {
                 mx.ui.error('Uploading image failed with error code ' + e.code);
             };
 
@@ -436,19 +358,53 @@ require([
             ft.upload(this._imageUrl, url, success, error, options);
         },
 
-        _executeMicroflow : function () {
+
+
+        _resetSubscriptions: function () {
+            var _objectHandle = null;
+
+            // Release handles on previous object, if any.
+            if (this._handles) {
+                this._handles.forEach(function (handle, i) {
+                    mx.data.unsubscribe(handle);
+                });
+                this._handles = [];
+            }
+
+            // When a mendix object exists create subscribtions. 
+            if (this._contextObj) {
+
+                _objectHandle = this.subscribe({
+                    guid: this._contextObj.getGuid(),
+                    callback: lang.hitch(this, function (guid) {
+                        mx.data.get({
+                            guid: guid,
+                            callback: lang.hitch(this, function (obj) {
+                                this._contextObj = obj;
+                                this._loadData();
+                            })
+                        });
+                    })
+                });
+                this._handles = [_objectHandle];
+            }
+        },
+
+        _executeMicroflow: function () {
             if (this.onchangemf && this._contextObj) {
                 mx.data.action({
-                    error       : function() {},
-                    actionname  : this.onchangemf,
-                    applyto     : 'selection',
-                    guids       : [this._contextObj.getGuid()],
-                    callback    : function(objs) {}
+                    actionname: this.onchangemf,
+                    applyto: 'selection',
+                    guids: [this._contextObj.getGuid()],
+                    callback: function (objs) {
+                        //ok
+                    },
+                    error: function (e) {
+                        console.warn('Error running microflow: ', e);
+                    }
                 });
             }
         }
 
     });
 });
-
-
