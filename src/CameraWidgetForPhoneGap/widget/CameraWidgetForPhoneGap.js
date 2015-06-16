@@ -343,6 +343,7 @@ require([
             options.fileKey = 'mxdocument';
             options.fileName = this._imageUrl.substr(this._imageUrl.lastIndexOf('/') + 1);
             options.mimeType = 'image/jpeg';
+            options.useBrowserHttp = true;
 
             url = mx.appUrl +
                 'file?guid=' + this._contextObj.getGuid() +
