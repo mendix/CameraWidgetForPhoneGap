@@ -42,6 +42,7 @@ require([
         targetHeight: 150,
         autoSaveEnabled: false,
         onchangemf: '',
+        pictureSource: 'camera',
 
         //internal variables
         _contextObj: null,
@@ -316,13 +317,16 @@ require([
                 }
             };
 
+            var sourceType = (this.pictureSource == 'camera') ?
+                    Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY;
             // TODO: get rid of temp image files
             navigator.camera.getPicture(success, error, {
                 quality: 50,
                 destinationType: Camera.DestinationType.FILE_URL,
                 targetWidth: this.targetWidth,
                 targetHeight: this.targetHeight,
-                correctOrientation: true
+                correctOrientation: true,
+                sourceType: sourceType
             });
         },
 
