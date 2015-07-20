@@ -33,8 +33,12 @@ An optional class to be placed directly on the button dom node.
 ### Behaviour
 #### On save microflow
 An optional microflow that will be triggered when the object is saved.
+
 #### Autosave
 Optional setting to auto-save an image to the contextobject. use the on save mf to commit the object and run further actions.
+
+#### Picture Source
+Setting that determines where the image will come from: gallery or the camera.
 
 ### Image quality
 Be aware that setting this higher will be more taxing and will take longer to upload.
