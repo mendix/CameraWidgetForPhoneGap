@@ -1,10 +1,13 @@
 # Camera Widget For PhoneGap
 
-The camera widget is a widget that enables PhoneGap native camera functionality within your Mendix mobile application.
+The camera widget enables PhoneGap native camera functionality within your Mendix mobile application.
 
 ## Contributing
 
 For more information on contributing to this repository visit [Contributing to a GitHub repository](https://world.mendix.com/display/howto50/Contributing+to+a+GitHub+repository)!
+
+## Compatibility
+The camera widget functions on the latest versions of both iOS and Android. Windows Phone is currently not supported. 
 
 ## Configuration
 
