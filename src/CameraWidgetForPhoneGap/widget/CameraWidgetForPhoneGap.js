@@ -6,7 +6,7 @@
     ========================
 
 	@file      : CameraWidgetForPhoneGap.js
-	@version   : 2.4
+	@version   : 2.5
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
 
