@@ -56,6 +56,11 @@
             <category>Behaviour</category>
             <description>Enable autosave to automatically save your image</description>
         </property>
+        <property key="autoCaptureEnabled" type="boolean" defaultValue="false">
+            <caption>AutoCapture</caption>
+            <category>Behaviour</category>
+            <description>Enable auto capture to automatically start the camera</description>
+        </property>
         <property key="onchangemf" type="microflow" required="false">
             <caption>On save microflow</caption>
             <category>Behaviour</category>
