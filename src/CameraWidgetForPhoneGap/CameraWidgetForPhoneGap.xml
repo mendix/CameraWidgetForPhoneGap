@@ -9,11 +9,15 @@
             <caption>Class</caption>
             <category>Button</category>
             <description>The class on the button.</description>
-        </property>
-        <property key="buttonText" type="string" defaultValue="activate camera">
+        </property> 
+        <property key="buttonText" type="translatableString">
             <caption>Label</caption>
             <category>Button</category>
-            <description>The label on the button.</description>
+            <description>The label on the button.</description>                         
+            <translations>
+                <translation lang="en_US">activate camera</translation>
+                <translation lang="nl_NL">camera activeren</translation>
+            </translations>
         </property>
         <property key="imageContainerClass" type="string" defaultValue="wx-mxwx-imagecontainer-extra">
             <caption>Image container class</caption>
@@ -55,6 +59,11 @@
             <caption>Autosave</caption>
             <category>Behaviour</category>
             <description>Enable autosave to automatically save your image</description>
+        </property>
+        <property key="autoCaptureEnabled" type="boolean" defaultValue="false">
+            <caption>AutoCapture</caption>
+            <category>Behaviour</category>
+            <description>Enable auto capture to automatically start the camera</description>
         </property>
         <property key="onchangemf" type="microflow" required="false">
             <caption>On save microflow</caption>

@@ -6,7 +6,7 @@
     ========================
 
 	@file      : CameraWidgetForPhoneGap.js
-	@version   : 2.5
+	@version   : 2.6
 	@copyright : Mendix Technology BV
 	@license   : Apache License, Version 2.0, January 2004
 
@@ -19,9 +19,11 @@
 // Required module list. Remove unnecessary modules, you can always get them back from the boilerplate.
 require([
     'dojo/_base/declare', 'mxui/widget/_WidgetBase', 'dijit/_TemplatedMixin',
-    'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 'dojo/text', 'dojo/html', 'dojo/_base/event',
+    'mxui/dom', 'dojo/dom', 'dojo/query', 'dojo/dom-prop', 'dojo/dom-geometry', 'dojo/dom-class', 
+    'dojo/dom-style', 'dojo/dom-construct', 'dojo/_base/array', 'dojo/_base/lang', 
+    'dojo/text', 'dojo/html', 'dojo/_base/event',  "dojo/aspect", 
     'dojo/text!CameraWidgetForPhoneGap/widget/template/CameraWidgetForPhoneGap.html'
-], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, html, event, widgetTemplate) {
+], function (declare, _WidgetBase, _TemplatedMixin, dom, dojoDom, domQuery, domProp, domGeom, domClass, domStyle, domConstruct, dojoArray, lang, text, html, event, aspect, widgetTemplate) {
     'use strict';
 
     // Declare widget's prototype.
@@ -47,7 +49,8 @@ require([
         _handles: null,
         _imageUrl: null,
         _previewNode: null,
-
+        statusDom: null,
+        pid: null,
 
         constructor: function () {
             this._handles = [];
@@ -70,6 +73,13 @@ require([
                 this._loadData();
                 this._resetSubscriptions();
                 this._setPicture('');
+                if (this.autoCaptureEnabled && navigator.camera) {
+                    //aspect.after(this.mxform, "onAfterShow", lang.hitch(this, function (deferred) {        
+                    mx.addOnLoad(lang.hitch(this, function () {   
+                        console.log("CameraWidgetForPhonegap  - autoCaptureEnabled");
+                        this._getPicture();
+                    }));
+                }
             } else {
                 // Sorry no data no show!
                 console.log('CameraWidgetForPhonegap  - update - We did not get any context object!');
@@ -110,6 +120,7 @@ require([
 
             button = this._setupButton();
             preview = this._setupPreview();
+            this._setupStatus();
 
             tableHtml = domConstruct.create('table', {
                 'class': 'wx-CameraWidgetForPhoneGap-table'
@@ -247,6 +258,13 @@ require([
             });
             return this._previewNode;
         },
+        _setupStatus: function () {
+            var $ = dom.create;
+            this.statusDom = $('div', {
+                'class': 'wx-CameraWidgetForPhoneGap-progress'
+            });
+            return this.statusDom;
+        },
 
 
         /**
@@ -255,19 +273,18 @@ require([
          */
 
         _loadData: function () {
-
             if (this._contextObj) {
                 if (!this._contextObj.inheritsFrom("System.FileDocument")) {
                     var span = domConstruct.create('span', {
-                            'class': 'alert-danger'
-                        },
-                        'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".');
+                            'class': 'alert-danger',
+                            innerHTML: 'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".'
+                        });
                     domConstruct.empty(this.domNode);
                     this.domNode.appendChild(span);
                 }
             }
-
         },
+        
         _setPicture: function (url) {
             this._imageUrl = url;
             this._setThumbnail(url);
@@ -285,8 +302,6 @@ require([
                 'width': width,
                 'height': height
             });
-
-
         },
 
         _getPicture: function () {
@@ -334,7 +349,11 @@ require([
                 success = null,
                 error = null,
                 ft = null,
-                self = this;
+                self = this,
+                show = null,
+                hide = null,
+                hasProgress = false;
+                
 
             if (!this._imageUrl) {
                 callback();
@@ -350,19 +369,51 @@ require([
             url = mx.appUrl +
                 'file?guid=' + this._contextObj.getGuid() +
                 '&csrfToken=' + mx.session.getCSRFToken();
-
+                
+            show = function () {
+                if (!hasProgress){
+                    self.CameraWidgetForPhoneGapNode.appendChild(self.statusDom);
+                    //this.layout();
+                    hasProgress = true;
+                }
+            };
+            hide = function () {
+                var parent = self.statusDom.parentNode;
+                parent && parent.removeChild(self.statusDom);
+                self.statusDom.innerHTML = "";
+                hasProgress = false;
+            };   
+            
+            this.pid = mx.ui.showProgress();
             success = function () {
+                hide();
                 self._setPicture('');
                 self._executeMicroflow();
-                callback();
+                callback && callback();
             };
 
-
             error = function (e) {
+                hide();
+                mx.ui.hideProgress(self.pid);
                 mx.ui.error('Uploading image failed with error code ' + e.code);
+                callback && callback();                
             };
 
             ft = new FileTransfer();
+            ft.onprogress = function (progressEvent) {
+                show();
+                if (progressEvent.lengthComputable) {
+                    var perc = Math.floor(progressEvent.loaded / progressEvent.total * 100);
+                    self.statusDom.innerHTML = perc + "% uploading...";
+                } else {
+                    if (self.statusDom.innerHTML == "") {
+                        self.statusDom.innerHTML = "Loading";
+                    } else {
+                        self.statusDom.innerHTML += ".";
+                    }
+                }
+            };
+            
             ft.upload(this._imageUrl, url, success, error, options);
         },
 
@@ -410,18 +461,23 @@ require([
         },
 
         _executeMicroflow: function () {
+            var self = this;
             if (this.onchangemf && this._contextObj) {
-                mx.data.action({
-                    actionname: this.onchangemf,
-                    applyto: 'selection',
-                    guids: [this._contextObj.getGuid()],
+                mx.ui.action(this.onchangemf, {
+                    params: {
+                        applyto: 'selection',
+                        guids: [this._contextObj.getGuid()]
+                    },
                     callback: function (objs) {
-                        //ok
+                        mx.ui.hideProgress(self.pid);
                     },
                     error: function (e) {
+                        mx.ui.hideProgress(self.pid);
                         console.warn('Error running microflow: ', e);
                     }
                 });
+            } else {
+                mx.ui.hideProgress(self.pid);
             }
         }
 
