@@ -57,134 +57,51 @@ require([
         },
 
         _createChildNodes: function() {
-            var button = null,
-                preview = null,
-                tableHtml = null,
-                trTop = null,
-                trBottom = null,
-                tdTop = null,
-                tdBottom = null,
-                trTable = null,
-                tdLeft = null,
-                tdRight = null;
+            var elements = [ this._setupButton(), this._setupPreview() ];
+            if (/below|right/i.test(this.imageLocation)) {
+                elements.reverse();
+            }
 
-            button = this._setupButton();
-            preview = this._setupPreview();
+            var distribute = distributeHorizontally;
+            if (/above|below/i.test(this.imageLocation)) {
+                distribute = distributeVertically;
+            }
 
-            tableHtml = dom.create("table", {
+            var tableHtml = dom.create("table", {
                 "class": "wx-CameraWidgetForPhoneGap-table"
             });
 
-            switch (this.imageLocation) {
-            case "Above":
-                trTop = dom.create("tr", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-tr"
-                });
-                tdTop = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-
-                trBottom = dom.create("tr", {
-                    "class": "wx-CameraWidgetForPhoneGap-bottom-tr"
-                });
-                tdBottom = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-bottom-td"
-                });
-
-                tdTop.appendChild(preview);
-                trTop.appendChild(tdTop);
-
-                tdBottom.appendChild(button);
-                trBottom.appendChild(tdBottom);
-
-                tableHtml.appendChild(trTop);
-                tableHtml.appendChild(trBottom);
-                break;
-            case "Below":
-                trTop = dom.create("tr", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-tr"
-                });
-                tdTop = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-
-                trBottom = dom.create("tr", {
-                    "class": "wx-CameraWidgetForPhoneGap-bottom-tr"
-                });
-                tdBottom = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-bottom-td"
-                });
-
-                tdTop.appendChild(button);
-                trTop.appendChild(tdTop);
-
-                tdBottom.appendChild(preview);
-                trBottom.appendChild(tdBottom);
-
-                tableHtml.appendChild(trTop);
-                tableHtml.appendChild(trBottom);
-                break;
-            case "Left":
-                trTable = dom.create("tr", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-tr"
-                });
-                tdLeft = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-                tdRight = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-
-                tdLeft.appendChild(preview);
-                trTable.appendChild(tdLeft);
-
-                tdRight.appendChild(button);
-                trTable.appendChild(tdRight);
-
-                tableHtml.appendChild(trTable);
-                break;
-            case "Right":
-                trTable = dom.create("tr", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-tr"
-                });
-                tdLeft = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-                tdRight = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-
-                tdLeft.appendChild(button);
-                trTable.appendChild(tdLeft);
-
-                tdRight.appendChild(preview);
-                trTable.appendChild(tdRight);
-
-                tableHtml.appendChild(trTable);
-                break;
-            default:
-                trTable = dom.create("tr", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-tr"
-                });
-                tdLeft = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-                tdRight = dom.create("td", {
-                    "class": "wx-CameraWidgetForPhoneGap-top-td"
-                });
-
-                tdLeft.appendChild(button);
-                trTable.appendChild(tdLeft);
-
-                tdRight.appendChild(preview);
-                trTable.appendChild(tdRight);
-
-                tableHtml.appendChild(trTable);
-                break;
-            }
+            distribute(elements).forEach(function(row) {
+                tableHtml.appendChild(row);
+            });
 
             this.domNode.appendChild(tableHtml);
             this.listen("save", this._sendFile);
+
+            function distributeVertically(elements) {
+                return elements.map(function(el, i) {
+                    var position = (i === 0) ? "top" :
+                                   (i === elements.length - 1) ? "bottom" : "";
+                    return dom.create("tr", {
+                        "class": position ? "wx-CameraWidgetForPhoneGap-" + position + "-tr" : ""
+                    }, dom.create("td", {
+                        "class": position ? "wx-CameraWidgetForPhoneGap-" + position + "-td" : ""
+                    }, el));
+                });
+            }
+
+            function distributeHorizontally(elements) {
+                return [ dom.create.apply(
+                    dom.create,
+                    [
+                        "tr", { "class": "wx-CameraWidgetForPhoneGap-top-tr" }
+                    ].concat(elements.map(function(el) {
+                        return dom.create("td", {
+                            "class": "wx-CameraWidgetForPhoneGap-top-td"
+                        }, el);
+                    }))
+                ) ];
+            }
         },
 
         _setupButton: function() {
