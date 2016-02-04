@@ -1,21 +1,6 @@
-/*jslint white:true, nomen: true, plusplus: true */
-/*global mx, define, require, browser, devel, console, document, Camera, FileUploadOptions, FileTransfer, navigator */
-/*mendix */
 /*
-    CameraWidgetForPhoneGap
-    ========================
-
-	@file      : CameraWidgetForPhoneGap.js
-	@version   : 2.5
-	@copyright : Mendix Technology BV
-	@license   : Apache License, Version 2.0, January 2004
-
-
-    Documentation
-    ========================
-    Describe your widget here.
-*/
-
+ * Copyright 2014-2016 Mendix Technology bv
+ */
 require([
     "dojo/_base/declare", "mxui/widget/_WidgetBase", "dijit/_TemplatedMixin",
     "mxui/dom", "dojo/dom-class", "dojo/dom-style", "dojo/dom-construct",
