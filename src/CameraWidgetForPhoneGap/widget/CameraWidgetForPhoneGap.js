@@ -27,14 +27,9 @@ require([
         pictureSource: "camera",
 
         _contextObj: null,
-        _handles: null,
         _imageUrl: null,
         _previewNode: null,
 
-
-        constructor: function() {
-            this._handles = [];
-        },
 
         postCreate: function() {
             this._setupWidget();
