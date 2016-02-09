@@ -32,26 +32,8 @@ require([
 
 
         postCreate: function() {
-            this._setupWidget();
-            this._createChildNodes();
-        },
-
-        update: function(obj, callback) {
-            if (obj) {
-                this._contextObj = obj;
-                this._loadData();
-                this._resetSubscriptions();
-                this._setPicture("");
-            }
-
-            if (callback) callback();
-        },
-
-        _setupWidget: function() {
             domClass.add(this.domNode, "wx-CameraWidgetForPhoneGap-container");
-        },
 
-        _createChildNodes: function() {
             var elements = [ this._setupPreview(), this._setupButton() ];
             if (/below|right/.test(this.imageLocation)) {
                 elements.reverse();
@@ -97,6 +79,17 @@ require([
                     }))
                 ) ];
             }
+        },
+
+        update: function(obj, callback) {
+            if (obj) {
+                this._contextObj = obj;
+                this._loadData();
+                this._resetSubscriptions();
+                this._setPicture("");
+            }
+
+            if (callback) callback();
         },
 
         _setupButton: function() {
