@@ -28,53 +28,24 @@ require([
 
 
         postCreate: function() {
-            domClass.add(this.domNode, "wx-CameraWidgetForPhoneGap-container");
+            domClass.add(this.domNode, "wx-CameraWidgetForPhoneGap");
 
             var elements = [ this._setupPreview(), this._setupButton() ];
             if (/below|right/.test(this.imageLocation)) {
                 elements.reverse();
             }
 
-            var distribute = distributeHorizontally;
+            var alignment = "horizontal";
             if (/above|below/.test(this.imageLocation)) {
-                distribute = distributeVertically;
+                alignment = "vertical";
             }
 
-            var tableHtml = dom.create("table", {
-                "class": "wx-CameraWidgetForPhoneGap-table"
-            });
+            elements.forEach(function(el) {
+                domClass.add(el, "wx-CameraWidgetForPhoneGap-" + alignment);
+                this.domNode.appendChild(el);
+            }, this);
 
-            distribute(elements).forEach(function(row) {
-                tableHtml.appendChild(row);
-            });
-
-            this.domNode.appendChild(tableHtml);
             this.listen("save", this._sendFile);
-
-            function distributeVertically(elements) {
-                return elements.map(function(el, i) {
-                    var position = (i === 0) ? "top" :
-                                   (i === elements.length - 1) ? "bottom" : "";
-                    return dom.create("tr", {
-                        "class": position ? "wx-CameraWidgetForPhoneGap-" + position + "-tr" : ""
-                    }, dom.create("td", {
-                        "class": position ? "wx-CameraWidgetForPhoneGap-" + position + "-td" : ""
-                    }, el));
-                });
-            }
-
-            function distributeHorizontally(elements) {
-                return [ dom.create.apply(
-                    dom.create,
-                    [
-                        "tr", { "class": "wx-CameraWidgetForPhoneGap-top-tr" }
-                    ].concat(elements.map(function(el) {
-                        return dom.create("td", {
-                            "class": "wx-CameraWidgetForPhoneGap-top-td"
-                        }, el);
-                    }))
-                ) ];
-            }
         },
 
         update: function(obj, callback) {

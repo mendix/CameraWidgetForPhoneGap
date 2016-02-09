@@ -1,13 +1,32 @@
 /*
  * Copyright 2014-2016 - Mendix Technology bv
  */
-.wx-CameraWidgetForPhoneGap-preview {
-    display: inline-block;
-    vertical-align: top;
+.wx-CameraWidgetForPhoneGap {
+}
+
+.wx-CameraWidgetForPhoneGap .wx-CameraWidgetForPhoneGap-preview {
     width: 34px;
     height: 34px;
-    margin: 0 8px;
-    border: 1px solid transparent;
+    vertical-align: middle;
     border-radius: 4px;
     background-size: cover;
+}
+
+.wx-CameraWidgetForPhoneGap .wx-CameraWidgetForPhoneGap-button {
+}
+
+.wx-CameraWidgetForPhoneGap .wx-CameraWidgetForPhoneGap-preview.wx-CameraWidgetForPhoneGap-horizontal {
+    margin: 0 8px;
+}
+
+.wx-CameraWidgetForPhoneGap .wx-CameraWidgetForPhoneGap-preview.wx-CameraWidgetForPhoneGap-vertical {
+    margin: 8px 0;
+}
+
+.wx-CameraWidgetForPhoneGap .wx-CameraWidgetForPhoneGap-horizontal {
+    display: inline-block;
+}
+
+.wx-CameraWidgetForPhoneGap .wx-CameraWidgetForPhoneGap-vertical {
+    display: block;
 }
