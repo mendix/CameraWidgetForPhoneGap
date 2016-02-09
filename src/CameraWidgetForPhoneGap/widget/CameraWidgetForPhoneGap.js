@@ -196,18 +196,22 @@ require([
                 return;
             }
 
-            options = new FileUploadOptions();
-            options.fileKey = "mxdocument";
-            options.fileName = this._imageUrl.substr(this._imageUrl.lastIndexOf("/") + 1);
-            options.mimeType = "image/jpeg";
-            options.useBrowserHttp = true;
+            var guid = this._contextObj.getGuid();
+            var filename = /[^\/]*$/.exec(this._imageUrl)[0];
+            window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
+                fileEntry.file(function(blob) {
+                    var fileReader = new FileReader();
+                    fileReader.onload = function(e) {
+                        mx.data.saveDocument(guid, filename, {}, new Blob([ e.target.result ]), success, error);
+                    };
 
-            url = mx.appUrl +
-                "file?guid=" + this._contextObj.getGuid() +
-                "&csrfToken=" + mx.session.getCSRFToken();
+                    fileReader.onerror = function(e) {
+                        error(e.target.error);
+                    };
 
-            ft = new FileTransfer();
-            ft.upload(this._imageUrl, url, success, error, options);
+                    fileReader.readAsArrayBuffer(blob);
+                }, error);
+            }, error);
 
             function success() {
                 self._setPicture("");
