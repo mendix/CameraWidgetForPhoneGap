@@ -159,15 +159,16 @@ require([
 
             var sourceType = (this.pictureSource == "camera") ?
                     Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY;
-            // TODO: get rid of temp image files
-            navigator.camera.getPicture(success, error, {
+            var params = {
                 quality: 50,
                 destinationType: Camera.DestinationType.FILE_URL,
-                targetWidth: this.targetWidth,
-                targetHeight: this.targetHeight,
                 correctOrientation: true,
                 sourceType: sourceType
-            });
+            };
+            if (this.targetWidth !== 0) params.targetWidth = this.targetWidth;
+            if (this.targetHeight !== 0) params.targetHeight = this.targetHeight;
+            // TODO: get rid of temp image files
+            navigator.camera.getPicture(success, error, params);
 
             function success(url) {
                 if (self.autoSaveEnabled) {
