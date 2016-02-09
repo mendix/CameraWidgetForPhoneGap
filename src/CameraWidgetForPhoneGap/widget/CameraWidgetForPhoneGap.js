@@ -100,7 +100,7 @@ require([
 
         _setupPreview: function() {
             this._previewNode = dom.create("div", {
-                "class": "wx-CameraWidgetForPhoneGap-preview"
+                "class": "wx-CameraWidgetForPhoneGap-preview " + this.imageContainerClass
             });
             return this._previewNode;
         },
