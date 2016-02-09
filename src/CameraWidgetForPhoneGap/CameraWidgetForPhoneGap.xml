@@ -31,15 +31,15 @@
             <category>Appearance</category>
             <description>The height of the image.</description>
         </property>
-        <property key="imageLocation" type="enumeration" defaultValue="Right">
+        <property key="imageLocation" type="enumeration" defaultValue="right">
             <caption>Image location</caption>
             <category>Appearance</category>
             <description>The position where the image is set.</description>
             <enumerationValues>
-                <enumerationValue key="Above">Above</enumerationValue>
-                <enumerationValue key="Below">Below</enumerationValue>
-                <enumerationValue key="Left">Left</enumerationValue>
-                <enumerationValue key="Right">Right</enumerationValue>
+                <enumerationValue key="above">Above</enumerationValue>
+                <enumerationValue key="below">Below</enumerationValue>
+                <enumerationValue key="left">Left</enumerationValue>
+                <enumerationValue key="right">Right</enumerationValue>
             </enumerationValues>
         </property>
         <property key="targetWidth" type="integer" defaultValue="150">

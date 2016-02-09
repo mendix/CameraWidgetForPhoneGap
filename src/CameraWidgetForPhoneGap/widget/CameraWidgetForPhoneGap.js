@@ -19,7 +19,7 @@ require([
         imageContainerClass: "wx-mxwx-imagecontainer-extra",
         imageWidth: 150,
         imageHeight: 150,
-        imageLocation: "Right",
+        imageLocation: "right",
         targetWidth: 150,
         targetHeight: 150,
         autoSaveEnabled: false,
@@ -52,13 +52,13 @@ require([
         },
 
         _createChildNodes: function() {
-            var elements = [ this._setupButton(), this._setupPreview() ];
-            if (/below|right/i.test(this.imageLocation)) {
+            var elements = [ this._setupPreview(), this._setupButton() ];
+            if (/below|right/.test(this.imageLocation)) {
                 elements.reverse();
             }
 
             var distribute = distributeHorizontally;
-            if (/above|below/i.test(this.imageLocation)) {
+            if (/above|below/.test(this.imageLocation)) {
                 distribute = distributeVertically;
             }
 
