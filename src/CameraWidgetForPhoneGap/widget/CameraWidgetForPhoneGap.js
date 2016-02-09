@@ -3,16 +3,12 @@
  */
 require([
     "dojo/_base/declare", "mxui/widget/_WidgetBase", "dijit/_TemplatedMixin",
-    "mxui/dom", "dojo/dom-class", "dojo/dom-style", "dojo/dom-construct",
-    "dojo/text!CameraWidgetForPhoneGap/widget/template/CameraWidgetForPhoneGap.html"
-], function(declare, _WidgetBase, _TemplatedMixin, dom, domClass, domStyle, domConstruct,
-            widgetTemplate) {
+    "mxui/dom", "dojo/dom-class", "dojo/dom-style", "dojo/dom-construct"
+], function(declare, _WidgetBase, _TemplatedMixin, dom, domClass, domStyle, domConstruct) {
 
     "use strict";
 
-    return declare("CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap", [ _WidgetBase, _TemplatedMixin ], {
-
-        templateString: widgetTemplate,
+    return declare("CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap", [ _WidgetBase ], {
 
         buttonClass: "wx-mxwx-button-extra",
         buttonText: "activate camera",
