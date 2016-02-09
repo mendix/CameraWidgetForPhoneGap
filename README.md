@@ -44,7 +44,8 @@ Optional setting to auto-save an image to the contextobject. use the on save mf 
 Setting that determines where the image will come from: gallery or the camera.
 
 ### Image quality
-Be aware that setting this higher will be more taxing and will take longer to upload.
+Be aware that setting this higher will be more taxing and will take longer to upload.  If quality
+width and height are both set to `0`, the image will be saved full size.
 
 #### Quality width
 The width of the image that is eventually stored and send to the application, between 0 and 100. 
