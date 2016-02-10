@@ -113,7 +113,7 @@ require([
             var self = this;
 
             if (!navigator.camera) {
-                mx.ui.error("Unable to detect camera.");
+                window.mx.ui.error("Unable to detect camera.");
                 return;
             }
 
@@ -140,7 +140,7 @@ require([
 
             function error(e) {
                 if (typeof e.code !== "undefined") {
-                    mx.ui.error("Retrieving image from camera failed with error code " + e.code);
+                    window.mx.ui.error("Retrieving image from camera failed with error code " + e.code);
                 }
             }
         },
@@ -162,7 +162,7 @@ require([
                 fileEntry.file(function(blob) {
                     var fileReader = new FileReader();
                     fileReader.onload = function(e) {
-                        mx.data.saveDocument(guid, filename, {}, new Blob([ e.target.result ]), success, error);
+                        window.mx.data.saveDocument(guid, filename, {}, new Blob([ e.target.result ]), success, error);
                     };
 
                     fileReader.onerror = function(e) {
@@ -180,14 +180,14 @@ require([
             }
 
             function error(e) {
-                mx.ui.error("Uploading image failed with error code " + e.code);
+                window.mx.ui.error("Uploading image failed with error code " + e.code);
             }
         },
 
         _autoSave: function(url) {
             this._imageUrl = url;
             if (this._contextObj){
-                 mx.data.save({
+                 window.mx.data.save({
                      mxobj: this._contextObj,
                      callback: function(){
                         this._sendFile();
@@ -203,7 +203,7 @@ require([
                 this.subscribe({
                     guid: this._contextObj.getGuid(),
                     callback: function(guid) {
-                        mx.data.get({
+                        window.mx.data.get({
                             guid: guid,
                             callback: function(obj) {
                                 this._contextObj = obj;
@@ -217,7 +217,7 @@ require([
 
         _executeMicroflow: function() {
             if (this.onchangemf && this._contextObj) {
-                mx.data.action({
+                window.mx.data.action({
                     actionname: this.onchangemf,
                     applyto: "selection",
                     guids: [ this._contextObj.getGuid() ],
