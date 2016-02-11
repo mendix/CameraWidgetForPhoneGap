@@ -146,32 +146,45 @@ require([
         },
 
         _sendFile: function(callback) {
-            var options = null,
-                url = null,
-                ft = null,
-                self = this;
+            var self = this;
 
             if (!this._imageUrl) {
                 callback();
                 return;
             }
 
-            var guid = this._contextObj.getGuid();
             var filename = /[^\/]*$/.exec(this._imageUrl)[0];
-            window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
-                fileEntry.file(function(blob) {
-                    var fileReader = new FileReader();
-                    fileReader.onload = function(e) {
-                        window.mx.data.saveDocument(guid, filename, {}, new Blob([ e.target.result ]), success, error);
-                    };
+            if (window.mx.data.saveDocument && window.mx.data.saveDocument.length === 6) {
+                var guid = this._contextObj.getGuid();
+                window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
+                    fileEntry.file(function(blob) {
+                        var fileReader = new FileReader();
+                        fileReader.onload = function(e) {
+                            window.mx.data.saveDocument(guid, filename, {}, new Blob([ e.target.result ]), success, error);
+                        };
 
-                    fileReader.onerror = function(e) {
-                        error(e.target.error);
-                    };
+                        fileReader.onerror = function(e) {
+                            error(e.target.error);
+                        };
 
-                    fileReader.readAsArrayBuffer(blob);
+                        fileReader.readAsArrayBuffer(blob);
+                    }, error);
                 }, error);
-            }, error);
+            } else {
+                // For Mendix versions < 6.3
+                var options = new FileUploadOptions();
+                options.fileKey = "mxdocument";
+                options.fileName = filename;
+                options.mimeType = "image/jpeg";
+                options.useBrowserHttp = true;
+
+                var url = mx.appUrl +
+                    "file?guid=" + this._contextObj.getGuid() +
+                    "&csrfToken=" + mx.session.getCSRFToken();
+
+                var ft = new FileTransfer();
+                ft.upload(this._imageUrl, url, success, error, options);
+            }
 
             function success() {
                 self._setPicture("");
