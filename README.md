@@ -10,10 +10,10 @@ For more information on contributing to this repository visit
 
 ## Compatibility
 The camera widget functions on the latest versions of both iOS and Android. Windows Phone is
-currently not supported. Additionally, v2.6 drops support for Mendix 5 projects. If you wish to include the widget in an older project, please download v2.5 from the versions tab. 
+currently not supported. Additionally, v3.0 drops support for Mendix 5 projects. If you wish to include the widget in an older project, please download v2.5 from the versions tab. 
 
 ## Offline
-In version 2.6, support for offline profiles was introduced. Functionality remains the same in the new offline profile, with the exception that on save microflows and the Autosave setting will trigger an error in the client when enabled.  
+In version 3.0, support for offline profiles was introduced. Functionality remains the same in the new offline profile, with the exception that on save microflows and the Autosave setting will trigger an error in the client when enabled.  
 
 ## Configuration
 
