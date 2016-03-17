@@ -149,7 +149,7 @@ require([
             var self = this;
 
             if (!this._imageUrl) {
-                callback();
+                if (callback) callback();
                 return;
             }
 
@@ -189,7 +189,7 @@ require([
             function success() {
                 self._setPicture("");
                 self._executeMicroflow();
-                callback();
+                if (callback) callback();
             }
 
             function error(e) {
