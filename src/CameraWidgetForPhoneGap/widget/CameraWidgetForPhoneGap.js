@@ -154,8 +154,8 @@ require([
             }
 
             var filename = /[^\/]*$/.exec(this._imageUrl)[0];
+            var guid = this._contextObj.getGuid();
             if (window.mx.data.saveDocument && window.mx.data.saveDocument.length === 6) {
-                var guid = this._contextObj.getGuid();
                 window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
                     fileEntry.file(function(blob) {
                         var fileReader = new FileReader();
@@ -183,7 +183,16 @@ require([
                     "&csrfToken=" + mx.session.getCSRFToken();
 
                 var ft = new FileTransfer();
-                ft.upload(this._imageUrl, url, success, error, options);
+                ft.upload(this._imageUrl, url, refreshObject, error, options);
+            }
+
+            function refreshObject() {
+                window.mx.data.get({
+                    guid: guid,
+                    noCache: true,
+                    callback: success,
+                    error: error
+                });
             }
 
             function success() {
