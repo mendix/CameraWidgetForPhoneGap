@@ -171,7 +171,7 @@ require([
                     }, error);
                 }, error);
             } else {
-                // For Mendix versions < 6.3
+                // For Mendix versions < 6.4
                 var options = new FileUploadOptions();
                 options.fileKey = "mxdocument";
                 options.fileName = filename;
