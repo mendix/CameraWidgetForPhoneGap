@@ -149,13 +149,13 @@ require([
             var self = this;
 
             if (!this._imageUrl) {
-                callback();
+                if (callback) callback();
                 return;
             }
 
             var filename = /[^\/]*$/.exec(this._imageUrl)[0];
+            var guid = this._contextObj.getGuid();
             if (window.mx.data.saveDocument && window.mx.data.saveDocument.length === 6) {
-                var guid = this._contextObj.getGuid();
                 window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
                     fileEntry.file(function(blob) {
                         var fileReader = new FileReader();
@@ -171,7 +171,7 @@ require([
                     }, error);
                 }, error);
             } else {
-                // For Mendix versions < 6.3
+                // For Mendix versions < 6.4
                 var options = new FileUploadOptions();
                 options.fileKey = "mxdocument";
                 options.fileName = filename;
@@ -183,13 +183,22 @@ require([
                     "&csrfToken=" + mx.session.getCSRFToken();
 
                 var ft = new FileTransfer();
-                ft.upload(this._imageUrl, url, success, error, options);
+                ft.upload(this._imageUrl, url, refreshObject, error, options);
+            }
+
+            function refreshObject() {
+                window.mx.data.get({
+                    guid: guid,
+                    noCache: true,
+                    callback: success,
+                    error: error
+                });
             }
 
             function success() {
                 self._setPicture("");
                 self._executeMicroflow();
-                callback();
+                if (callback) callback();
             }
 
             function error(e) {
