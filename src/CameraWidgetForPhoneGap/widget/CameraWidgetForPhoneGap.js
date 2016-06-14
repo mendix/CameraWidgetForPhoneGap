@@ -231,9 +231,11 @@ require([
         _executeMicroflow: function() {
             if (this.onchangemf && this._contextObj) {
                 window.mx.data.action({
-                    actionname: this.onchangemf,
-                    applyto: "selection",
-                    guids: [ this._contextObj.getGuid() ],
+                    params: {
+                        actionname: this.onchangemf,
+                        applyto: "selection",
+                        guids: [ this._contextObj.getGuid() ]
+                    },
                     callback: function(objs) {
                         //ok
                     },
