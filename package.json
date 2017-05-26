@@ -1,6 +1,6 @@
 {
   "name": "camera-widget-for-phonegap",
-  "version": "3.1.1",
+  "version": "3.2.0",
   "description": "Enable native camera functionality within your Mendix hybrid app",
   "repository": {
     "type": "git",
