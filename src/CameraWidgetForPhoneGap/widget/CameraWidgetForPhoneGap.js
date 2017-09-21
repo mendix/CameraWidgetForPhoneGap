@@ -180,7 +180,7 @@ require([
 
                 var url = mx.appUrl +
                     "file?guid=" + this._contextObj.getGuid() +
-                    "&csrfToken=" + mx.session.getCSRFToken();
+                    "&csrfToken=" + mx.session.getConfig('csrftoken');
 
                 var ft = new FileTransfer();
                 ft.upload(this._imageUrl, url, refreshObject, error, options);
