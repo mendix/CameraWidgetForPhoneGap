@@ -72,5 +72,10 @@
                 <enumerationValue key="gallery">Gallery</enumerationValue>
             </enumerationValues>
         </property>
+        <property key="autoStartDelay" type="integer" defaultValue="0">
+            <caption>Auto start delay</caption>
+            <category>Behaviour</category>
+            <description>Delay (ms) before opening the camera/gallery, zero means no auto start.</description>
+        </property>
     </properties>
 </widget>

@@ -51,6 +51,9 @@ and run further actions.
 #### Picture Source
 Setting that determines where the image will come from: gallery or the camera.
 
+#### Auto start delay
+Delay (ms) before opening the camera/gallery, zero means no auto start.
+
 ### Image quality
 Be aware that setting this higher will be more taxing and will take longer to upload.  If quality
 width and height are both set to `0`, the image will be saved full size.
