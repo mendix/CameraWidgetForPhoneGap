@@ -20,6 +20,7 @@ require([
         targetHeight: 150,
         autoSaveEnabled: false,
         onchangemf: "",
+        onSaveNanoflow: "",
         pictureSource: "camera",
 
         _contextObj: null,
@@ -45,7 +46,7 @@ require([
                 this.domNode.appendChild(el);
             }, this);
 
-            this.listen("save", this._sendFile);
+            this.listen("commit", this._sendFile);
         },
 
         update: function(obj, callback) {
@@ -197,7 +198,7 @@ require([
 
             function success() {
                 self._setPicture("");
-                self._executeMicroflow();
+                self._executeAction();
                 if (callback) callback();
             }
 
@@ -209,7 +210,7 @@ require([
         _autoSave: function(url) {
             this._imageUrl = url;
             if (this._contextObj){
-                 window.mx.data.save({
+                 window.mx.data.commit({
                      mxobj: this._contextObj,
                      callback: function(){
                         this._sendFile();
@@ -237,7 +238,7 @@ require([
             }
         },
 
-        _executeMicroflow: function() {
+        _executeAction: function() {
             if (this.onchangemf && this._contextObj) {
                 window.mx.data.action({
                     params: {
@@ -253,6 +254,17 @@ require([
                     }
                 });
             }
-        }
+
+            if (this.onSaveNanoflow && this.mxcontext) {
+                mx.data.callNanoflow({
+                    nanoflow: this.onSaveNanoflow,
+                    origin: this.mxform,
+                    context: this.mxcontext,
+                    error: function (error) {
+                        mx.ui.error(error.message);
+                    }
+                });
+            }
+        },
     });
 });

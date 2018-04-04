@@ -63,6 +63,12 @@
             <description>This mf is called when the object is saved. use this to commit the object when using autosave.</description> 
             <returnType type="Void"/>
         </property>
+        <property key="onSaveNanoflow" type="nanoflow" required="false">
+            <caption>On save nanoflow</caption>
+            <category>Behaviour</category>
+            <description>This nano flow is called when the object is saved. use this to commit the object when using autosave</description> 
+            <returnType type="Void"/>
+        </property>
         <property key="pictureSource" type="enumeration" defaultValue="camera">
             <caption>Picture Source</caption>
             <category>Behaviour</category>
