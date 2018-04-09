@@ -57,16 +57,16 @@
             <category>Behaviour</category>
             <description>Enable autosave to automatically save your image</description>
         </property>
-        <property key="onchangemf" type="microflow" required="false">
+        <property key="onchangeMicroflow" type="microflow" required="false">
             <caption>On save microflow</caption>
             <category>Behaviour</category>
-            <description>This mf is called when the object is saved. use this to commit the object when using autosave.</description> 
+            <description>This microflow is called when the object is saved. use this to commit the object when using autosave</description> 
             <returnType type="Void"/>
         </property>
         <property key="onSaveNanoflow" type="nanoflow" required="false">
             <caption>On save nanoflow</caption>
             <category>Behaviour</category>
-            <description>This nano flow is called when the object is saved. use this to commit the object when using autosave</description> 
+            <description>This nanoflow is called when the object is saved. use this to commit the object when using autosave</description> 
             <returnType type="Void"/>
         </property>
         <property key="pictureSource" type="enumeration" defaultValue="camera">

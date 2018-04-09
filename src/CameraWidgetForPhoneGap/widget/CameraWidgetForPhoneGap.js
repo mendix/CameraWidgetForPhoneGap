@@ -19,7 +19,7 @@ require([
         targetWidth: 150,
         targetHeight: 150,
         autoSaveEnabled: false,
-        onchangemf: "",
+        onchangeMicroflow: "",
         onSaveNanoflow: "",
         pictureSource: "camera",
 
@@ -121,7 +121,7 @@ require([
             var sourceType = (this.pictureSource == "camera") ?
                     Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY;
             var params = {
-                quality: 50,
+                quality: 100,
                 destinationType: Camera.DestinationType.FILE_URL,
                 correctOrientation: true,
                 sourceType: sourceType
@@ -181,7 +181,7 @@ require([
 
                 var url = mx.appUrl +
                     "file?guid=" + this._contextObj.getGuid() +
-                    "&csrfToken=" + mx.session.getCSRFToken();
+                    "&csrfToken=" + mx.session.getConfig('csrftoken');
 
                 var ft = new FileTransfer();
                 ft.upload(this._imageUrl, url, refreshObject, error, options);
@@ -239,10 +239,10 @@ require([
         },
 
         _executeAction: function() {
-            if (this.onchangemf && this._contextObj) {
+            if (this.onchangeMicroflow && this._contextObj) {
                 window.mx.data.action({
                     params: {
-                        actionname: this.onchangemf,
+                        actionname: this.onchangeMicroflow,
                         applyto: "selection",
                         guids: [ this._contextObj.getGuid() ]
                     },
@@ -261,7 +261,7 @@ require([
                     origin: this.mxform,
                     context: this.mxcontext,
                     error: function (error) {
-                        mx.ui.error(error.message);
+                        mx.ui.error("Error executing nanoflow " + this.onSaveNanoflow + " : " + error.message);
                     }
                 });
             }

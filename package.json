@@ -4,12 +4,14 @@
   "description": "Enable native camera functionality within your Mendix hybrid app",
   "license": "Apache-2.0",
   "author": "Mendix BV",
-  "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/mendix/CameraWidgetForPhoneGap"
+    "url": "https://github.com/mendix/CameraWidgetForPhoneGap.git"
   },
-  "dependencies": {},
+  "bugs": {
+    "url": "https://github.com/mendix/CameraWidgetForPhoneGap/issues"
+  },
+  "homepage": "https://github.com/mendix/CameraWidgetForPhoneGap#readme",
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-contrib-clean": "^1.0.0",
