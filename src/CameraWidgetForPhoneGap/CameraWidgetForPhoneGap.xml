@@ -11,7 +11,7 @@
             <category>Button</category>
             <description>The class on the button.</description>
         </property>
-        <property key="buttonText" type="string" defaultValue="activate camera">
+        <property key="buttonText" type="translatableString">
             <caption>Label</caption>
             <category>Button</category>
             <description>The label on the button.</description>
