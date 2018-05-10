@@ -19,7 +19,7 @@ require([
         targetWidth: 150,
         targetHeight: 150,
         autoSaveEnabled: false,
-        onchangeMicroflow: "",
+        onSaveMicroflow: "",
         onSaveNanoflow: "",
         pictureSource: "camera",
 
@@ -239,10 +239,10 @@ require([
         },
 
         _executeAction: function() {
-            if (this.onchangeMicroflow && this._contextObj) {
+            if (this.onSaveMicroflow && this._contextObj) {
                 window.mx.data.action({
                     params: {
-                        actionname: this.onchangeMicroflow,
+                        actionname: this.onSaveMicroflow,
                         applyto: "selection",
                         guids: [ this._contextObj.getGuid() ]
                     },
@@ -261,7 +261,7 @@ require([
                     origin: this.mxform,
                     context: this.mxcontext,
                     error: function (error) {
-                        mx.ui.error("Error executing nanoflow " + this.onSaveNanoflow + " : " + error.message);
+                        mx.ui.error(`An error occurred while executing the on click nanoflow: ${error.message}`);
                     }
                 });
             }
