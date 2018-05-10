@@ -44,6 +44,9 @@ An optional class to be placed directly on the button dom node.
 #### On save microflow
 An optional microflow that will be triggered when the object is saved.
 
+#### On save nanoflow
+An optional nanoflow that will be triggered when the object is saved.
+
 #### Autosave
 Optional setting to auto-save an image to the contextobject. use the on save mf to commit the object
 and run further actions.
