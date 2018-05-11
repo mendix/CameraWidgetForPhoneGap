@@ -19,7 +19,7 @@ require([
         targetWidth: 150,
         targetHeight: 150,
         autoSaveEnabled: false,
-        onSaveMicroflow: "",
+        onchangemf: "",
         onSaveNanoflow: "",
         pictureSource: "camera",
 
@@ -140,9 +140,7 @@ require([
             }
 
             function error(e) {
-                if (typeof e.code !== "undefined") {
-                    window.mx.ui.error("Retrieving image from camera failed with error code " + e.code);
-                }
+                window.mx.ui.error("Retrieving image from camera failed with error code " + e.message || e.code || "");
             }
         },
 
@@ -181,7 +179,7 @@ require([
 
                 var url = mx.appUrl +
                     "file?guid=" + this._contextObj.getGuid() +
-                    "&csrfToken=" + mx.session.getConfig('csrftoken');
+                    "&csrfToken=" + mx.session.getConfig("csrftoken");
 
                 var ft = new FileTransfer();
                 ft.upload(this._imageUrl, url, refreshObject, error, options);
@@ -203,7 +201,8 @@ require([
             }
 
             function error(e) {
-                window.mx.ui.error("Uploading image failed with error code " + e.code);
+                logger.error("Uploading image failed with error code ", e);
+                window.mx.ui.error("Uploading image failed with error " + e.message || e.code || "");
             }
         },
 
@@ -239,29 +238,24 @@ require([
         },
 
         _executeAction: function() {
-            if (this.onSaveMicroflow && this._contextObj) {
-                window.mx.data.action({
-                    params: {
-                        actionname: this.onSaveMicroflow,
-                        applyto: "selection",
-                        guids: [ this._contextObj.getGuid() ]
-                    },
-                    callback: function(objs) {
-                        //ok
-                    },
-                    error: function(e) {
-                        console.warn("Error running microflow: ", e);
+            if (this.onchangemf && this._contextObj) {
+                var microflow = this.onchangemf;
+                window.mx.ui.action(microflow, {
+                    context: this.mxcontext,
+                    origin: this.mxform,
+                    error: function(error) {
+                        mx.ui.error("An error occurred while executing on save microflow " + microflow + " : " + error.message);
                     }
                 });
             }
 
             if (this.onSaveNanoflow && this.mxcontext) {
-                mx.data.callNanoflow({
+                window.mx.data.callNanoflow({
                     nanoflow: this.onSaveNanoflow,
                     origin: this.mxform,
                     context: this.mxcontext,
                     error: function (error) {
-                        mx.ui.error(`An error occurred while executing the on click nanoflow: ${error.message}`);
+                        mx.ui.error("An error occurred while executing the on click nanoflow: " + error.message);
                     }
                 });
             }

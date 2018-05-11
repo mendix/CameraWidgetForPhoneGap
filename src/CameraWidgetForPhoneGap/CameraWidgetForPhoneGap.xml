@@ -57,7 +57,7 @@
             <category>Behaviour</category>
             <description>Enable autosave to automatically save your image</description>
         </property>
-        <property key="onSaveMicroflow" type="microflow" required="false">
+        <property key="onchangemf" type="microflow" required="false">
             <caption>On save microflow</caption>
             <category>Behaviour</category>
             <description>This microflow is called when the object is saved. use this to commit the object when using autosave</description> 
