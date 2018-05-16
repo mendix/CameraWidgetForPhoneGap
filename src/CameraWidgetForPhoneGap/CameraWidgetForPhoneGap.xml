@@ -11,7 +11,7 @@
             <category>Button</category>
             <description>The class on the button.</description>
         </property>
-        <property key="buttonText" type="string" defaultValue="activate camera">
+        <property key="buttonText" type="translatableString">
             <caption>Label</caption>
             <category>Button</category>
             <description>The label on the button.</description>
@@ -57,16 +57,21 @@
             <category>Behaviour</category>
             <description>Enable autosave to automatically save your image</description>
         </property>
+        <property key="autoCaptureEnabled" type="boolean" defaultValue="false">
+            <caption>AutoCapture</caption>
+            <category>Behaviour</category>
+            <description>Enable auto capture to automatically start the camera</description>
+        </property>
         <property key="onchangemf" type="microflow" required="false">
             <caption>On save microflow</caption>
             <category>Behaviour</category>
-            <description>This microflow is called when the object is saved. use this to commit the object when using autosave</description> 
+            <description>This microflow is called when the object is saved. use this to commit the object when using autosave</description>
             <returnType type="Void"/>
         </property>
         <property key="onSaveNanoflow" type="nanoflow" required="false">
             <caption>On save nanoflow</caption>
             <category>Behaviour</category>
-            <description>This nanoflow is called when the object is saved. use this to commit the object when using autosave</description> 
+            <description>This nanoflow is called when the object is saved. use this to commit the object when using autosave</description>
             <returnType type="Void"/>
         </property>
         <property key="pictureSource" type="enumeration" defaultValue="camera">

@@ -3,8 +3,8 @@
  */
 require([
     "dojo/_base/declare", "mxui/widget/_WidgetBase", "dijit/_TemplatedMixin",
-    "mxui/dom", "dojo/dom-class", "dojo/dom-style", "dojo/dom-construct"
-], function(declare, _WidgetBase, _TemplatedMixin, dom, domClass, domStyle, domConstruct) {
+    "mxui/dom", "dojo/dom-class", "dojo/dom-style", "dojo/dom-construct", "dojo/_base/lang"
+], function(declare, _WidgetBase, _TemplatedMixin, dom, domClass, domStyle, domConstruct, lang) {
 
     "use strict";
 
@@ -47,6 +47,7 @@ require([
             }, this);
 
             this.listen("commit", this._sendFile);
+            this.setupStatus();
         },
 
         update: function(obj, callback) {
@@ -55,6 +56,11 @@ require([
                 this._loadData();
                 this._resetSubscriptions();
                 this._setPicture("");
+                if (this.autoCaptureEnabled && navigator.camera) {
+                    mx.addOnLoad(lang.hitch(this, function () {
+                        this._getPicture();
+                    }));
+                }
             }
 
             if (callback) callback();
@@ -77,13 +83,20 @@ require([
             return this._previewNode;
         },
 
+        setupStatus: function () {
+            this.statusDom = dom.create('div', {
+                'class': 'wx-CameraWidgetForPhoneGap-progress'
+            });
+            return this.statusDom;
+        },
+
         _loadData: function() {
             if (this._contextObj) {
                 if (!this._contextObj.inheritsFrom("System.FileDocument")) {
                     var span = dom.create("span", {
-                            "class": "alert-danger"
-                        },
-                        "Entity '" + this._contextObj.getEntity() + "' does not inherit from 'System.FileDocument'");
+                            "class": "alert-danger",
+                            innerHTML: 'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".'
+                        });
                     domConstruct.empty(this.domNode);
                     this.domNode.appendChild(span);
                 }
@@ -140,7 +153,7 @@ require([
             }
 
             function error(e) {
-                window.mx.ui.error("Retrieving image from camera failed with error code " + e.message || e.code || "");
+                window.mx.ui.error("Retrieving image from camera failed with error " + e || + e.code || "");
             }
         },
 
@@ -157,12 +170,12 @@ require([
             window.resolveLocalFileSystemURL(this._imageUrl, function (fileEntry) {
                 fileEntry.file(function (blob) {
                     var fileReader = new FileReader();
-                    fileReader.onload = function (e) {
-                        window.mx.data.saveDocument(guid, filename, {}, new Blob([e.target.result]), success, error);
+                    fileReader.onload = function (event) {
+                        window.mx.data.saveDocument(guid, filename, {}, new Blob([event.target.result]), success, error);
                     };
 
-                    fileReader.onerror = function (e) {
-                        error(e.target.error);
+                    fileReader.onerror = function (event) {
+                        error(event.target.error);
                     };
 
                     fileReader.readAsArrayBuffer(blob);
