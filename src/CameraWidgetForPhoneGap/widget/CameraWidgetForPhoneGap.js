@@ -249,7 +249,7 @@ require([
                 });
             }
 
-            if (this.onSaveNanoflow && this.mxcontext) {
+            if (this.onSaveNanoflow.nanoflow && this.mxcontext) {
                 window.mx.data.callNanoflow({
                     nanoflow: this.onSaveNanoflow,
                     origin: this.mxform,
