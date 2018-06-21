@@ -139,8 +139,8 @@ require([
                 }
             }
 
-            function error(e) {
-                window.mx.ui.error("Retrieving image from camera failed with error code " + e.message || e.code || "");
+            function error(error) {
+                console.log(error);
             }
         },
 
