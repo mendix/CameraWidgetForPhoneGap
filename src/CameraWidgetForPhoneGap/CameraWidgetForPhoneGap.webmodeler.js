@@ -18,16 +18,21 @@ module.exports.preview = React.createClass({
             this.alignment = "horizontal";
         }
 
-        var divPreview = React.DOM.div({ className: `${this.widgetClass}-preview ${this.props.imageContainerClass} ${this.widgetClass}-${this.alignment}` });
-        var button = React.DOM.button({ className: `btn btn-primary ${this.widgetClass}-button  ${this.props.buttonClass} ${this.widgetClass}-${this.alignment}` }, this.props.buttonText);
-        var elements = [ divPreview, button ];
+        var divPreview = React.DOM.div({
+            className: this.widgetClass + "-preview" + this.props.imageContainerClass + this.widgetClass + "-" + this.alignment
+        });
+        var button = React.DOM.button({
+            className: "btn btn-primary" + this.widgetClass + "-button" + this.props.buttonClass + this.widgetClass + "-" + this.alignment
+        }, this.props.buttonText);
+        var elements = [divPreview, button];
 
         if (/below|right/.test(this.props.imageLocation)) {
             elements.reverse();
         }
 
-        return React.DOM.div(
-            { className: "widget-google-maps" },
+        return React.DOM.div({
+                className: "widget-camera-phonegap"
+            },
             elements,
         );
     },
