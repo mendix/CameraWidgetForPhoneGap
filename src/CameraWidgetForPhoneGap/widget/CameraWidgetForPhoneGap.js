@@ -140,7 +140,15 @@ require([
             }
 
             function error(error) {
-                console.log(error);
+                var message = error ? error.trim().toLowerCase() : "unkonwn";
+                const cameraError = "no image selected."
+                const cameraError2 = "camera cancelled."
+                if (message.indexOf(cameraError) > -1 && message.indexOf(cameraError2) > -1) {
+                    window.mx.ui.error("Error while retrieving image with error " + error);
+                    logger.error(self.friendlyId + " : error while retrieving image", error);
+                } else {
+                    logger.warn(self.friendlyId + " : error while retrieving image", error);
+                }
             }
         },
 
