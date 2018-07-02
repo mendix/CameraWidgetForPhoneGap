@@ -81,9 +81,9 @@ require([
             if (this._contextObj) {
                 if (!this._contextObj.inheritsFrom("System.FileDocument")) {
                     var span = dom.create("span", {
-                            "class": "alert-danger"
-                        },
-                        "Entity '" + this._contextObj.getEntity() + "' does not inherit from 'System.FileDocument'");
+                            "class": "alert-danger",
+                            innerHTML: 'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".'
+                            });
                     domConstruct.empty(this.domNode);
                     this.domNode.appendChild(span);
                 }
@@ -139,8 +139,16 @@ require([
                 }
             }
 
-            function error(e) {
-                window.mx.ui.error("Retrieving image from camera failed with error code " + e.message || e.code || "");
+            function error(error) {
+                var message = error ? error.trim().toLowerCase() : "unkonwn";
+                const cameraError = "no image selected."
+                const cameraError2 = "camera cancelled."
+                if (message.indexOf(cameraError) > -1 && message.indexOf(cameraError2) > -1) {
+                    window.mx.ui.error("Error while retrieving image with error " + error);
+                    logger.error(self.friendlyId + " : error while retrieving image", error);
+                } else {
+                    logger.warn(self.friendlyId + " : error while retrieving image", error);
+                }
             }
         },
 
@@ -154,45 +162,20 @@ require([
 
             var filename = /[^\/]*$/.exec(this._imageUrl)[0];
             var guid = this._contextObj.getGuid();
-            if (window.mx.data.saveDocument && window.mx.data.saveDocument.length === 6) {
-                window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
-                    fileEntry.file(function(blob) {
-                        var fileReader = new FileReader();
-                        fileReader.onload = function(e) {
-                            window.mx.data.saveDocument(guid, filename, {}, new Blob([ e.target.result ]), success, error);
-                        };
+            window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
+                fileEntry.file(function(blob) {
+                    var fileReader = new FileReader();
+                    fileReader.onload = function(event) {
+                        window.mx.data.saveDocument(guid, filename, {}, new Blob([ event.target.result ]), success, error);
+                    };
 
-                        fileReader.onerror = function(e) {
-                            error(e.target.error);
-                        };
+                    fileReader.onerror = function(event) {
+                        error(event.target.error);
+                    };
 
-                        fileReader.readAsArrayBuffer(blob);
-                    }, error);
+                    fileReader.readAsArrayBuffer(blob);
                 }, error);
-            } else {
-                // For Mendix versions < 6.4
-                var options = new FileUploadOptions();
-                options.fileKey = "mxdocument";
-                options.fileName = filename;
-                options.mimeType = "image/jpeg";
-                options.useBrowserHttp = true;
-
-                var url = mx.appUrl +
-                    "file?guid=" + this._contextObj.getGuid() +
-                    "&csrfToken=" + mx.session.getConfig("csrftoken");
-
-                var ft = new FileTransfer();
-                ft.upload(this._imageUrl, url, refreshObject, error, options);
-            }
-
-            function refreshObject() {
-                window.mx.data.get({
-                    guid: guid,
-                    noCache: true,
-                    callback: success,
-                    error: error
-                });
-            }
+            }, error);
 
             function success() {
                 self._setPicture("");
@@ -255,7 +238,7 @@ require([
                     origin: this.mxform,
                     context: this.mxcontext,
                     error: function (error) {
-                        mx.ui.error("An error occurred while executing the on click nanoflow: " + error.message);
+                        mx.ui.error("An error occurred while executing the on save nanoflow: " + error.message);
                     }
                 });
             }
