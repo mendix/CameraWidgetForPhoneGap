@@ -19,10 +19,10 @@ module.exports.preview = React.createClass({
         }
 
         var divPreview = React.DOM.div({
-            className: this.widgetClass + "-preview" + this.props.imageContainerClass + this.widgetClass + "-" + this.alignment
+            className: this.widgetClass + "-preview " + this.props.imageContainerClass + " " + this.widgetClass + "-" + this.alignment
         });
         var button = React.DOM.button({
-            className: "btn btn-primary" + this.widgetClass + "-button" + this.props.buttonClass + this.widgetClass + "-" + this.alignment
+            className: "btn btn-primary " + this.widgetClass + "-button " + this.props.buttonClass + " " + this.widgetClass + "-" + this.alignment
         }, this.props.buttonText);
         var elements = [divPreview, button];
 
