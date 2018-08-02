@@ -3,8 +3,8 @@
  */
 require([
     "dojo/_base/declare", "mxui/widget/_WidgetBase", "dijit/_TemplatedMixin",
-    "mxui/dom", "dojo/dom-class", "dojo/dom-style", "dojo/dom-construct"
-], function(declare, _WidgetBase, _TemplatedMixin, dom, domClass, domStyle, domConstruct) {
+    "mxui/dom", "dojo/dom-class", "dojo/dom-style", "dojo/dom-construct", "mendix/lang"
+], function(declare, _WidgetBase, _TemplatedMixin, dom, domClass, domStyle, domConstruct, mxLang) {
 
     "use strict";
 
@@ -22,11 +22,16 @@ require([
         onchangemf: "",
         onSaveNanoflow: "",
         pictureSource: "camera",
+        blockingUpload: "disabled", // disabled, duringUpload, onFormSave
+        progressText: "Uploading image in progress ...",
 
         _contextObj: null,
         _imageUrl: null,
         _previewNode: null,
 
+        progressId: undefined,
+        uploading: false,
+        uploadError: false,
 
         postCreate: function() {
             domClass.add(this.domNode, "wx-CameraWidgetForPhoneGap");
@@ -46,7 +51,25 @@ require([
                 this.domNode.appendChild(el);
             }, this);
 
-            this.listen("commit", this._sendFile);
+            this.listen("commit", function(callback) {
+                if (!this.autoSaveEnabled) {
+                    this._sendFile(callback);
+                } else {
+                    if (this.uploading && this.blockingUpload === "onFormSave") {
+                        this._showProgress();
+                        var self = this;
+                        mxLang.delay(function() {
+                            if (!self.uploadError) {
+                                callback();
+                            }
+                        }, function() {
+                            return !self.uploading
+                        }, 100);
+                    } else {
+                        callback();
+                    }
+                }
+            });
         },
 
         update: function(obj, callback) {
@@ -81,14 +104,13 @@ require([
             if (this._contextObj) {
                 if (!this._contextObj.inheritsFrom("System.FileDocument")) {
                     var span = dom.create("span", {
-                            "class": "alert-danger",
-                            innerHTML: 'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".'
-                            });
+                        "class": "alert-danger",
+                        innerHTML: 'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".'
+                    });
                     domConstruct.empty(this.domNode);
                     this.domNode.appendChild(span);
                 }
             }
-
         },
 
         _setPicture: function(url) {
@@ -140,7 +162,7 @@ require([
             }
 
             function error(error) {
-                var message = error ? error.trim().toLowerCase() : "unkonwn";
+                var message = error ? error.trim().toLowerCase() : "unknown";
                 const cameraError = "no image selected."
                 const cameraError2 = "camera cancelled."
                 if (message.indexOf(cameraError) > -1 && message.indexOf(cameraError2) > -1) {
@@ -153,15 +175,22 @@ require([
         },
 
         _sendFile: function(callback) {
+            logger.debug(this.id + "._sendFile");
+            this.uploadError = false;
             var self = this;
 
             if (!this._imageUrl) {
+                self._hideProgress();
                 if (callback) callback();
                 return;
+            }
+            if (this.blockingUpload === "duringUpload") {
+                this._showProgress();
             }
 
             var filename = /[^\/]*$/.exec(this._imageUrl)[0];
             var guid = this._contextObj.getGuid();
+
             window.resolveLocalFileSystemURL(this._imageUrl, function(fileEntry) {
                 fileEntry.file(function(blob) {
                     var fileReader = new FileReader();
@@ -170,6 +199,7 @@ require([
                     };
 
                     fileReader.onerror = function(event) {
+                        this.uploadError = true;
                         error(event.target.error);
                     };
 
@@ -178,26 +208,56 @@ require([
             }, error);
 
             function success() {
-                self._setPicture("");
-                self._executeAction();
-                if (callback) callback();
+                self._executeAction(function() {
+                    self._setPicture("");
+                    self._hideProgress();
+                    logger.debug(self.id + ".upload done");
+                    if (callback) callback();
+                });
             }
 
             function error(e) {
+                this.uploadError = true;
+                self._hideProgress();
                 logger.error("Uploading image failed with error code ", e);
                 window.mx.ui.error("Uploading image failed with error " + e.message || e.code || "");
             }
         },
 
         _autoSave: function(url) {
+            logger.debug(this.id + "._autoSave");
             this._imageUrl = url;
             if (this._contextObj){
+                this.uploading = true;
+                if (this.blockingUpload === "duringUpload") {
+                    this._showProgress();
+                }
                  window.mx.data.commit({
                      mxobj: this._contextObj,
                      callback: function(){
                         this._sendFile();
+                     },
+                     error: function(error) {
+                        this.uploadError = true;
+                        logger.error("Error committing image ", error);
+                        window.mx.ui.error("Error saving image " + error.message);
+                        this._hideProgress();
                      }
                 }, this);
+            }
+        },
+
+        _showProgress: function() {
+            if (!this.progressId) {
+                this.progressId = mx.ui.showProgress(this.progressText, true);
+            }
+        },
+
+        _hideProgress: function() {
+            this.uploading = false;
+            if (this.progressId) {
+                mx.ui.hideProgress(this.progressId);
+                this.progressId = undefined;
             }
         },
 
@@ -220,16 +280,19 @@ require([
             }
         },
 
-        _executeAction: function() {
-            if (this.onchangemf && this._contextObj) {
+        _executeAction: function(callback) {
+            if (this.onchangemf && this.mxcontext) {
                 var microflow = this.onchangemf;
                 window.mx.ui.action(microflow, {
                     context: this.mxcontext,
                     origin: this.mxform,
+                    callback: callback,
                     error: function(error) {
+                        this.uploadError = true;
                         mx.ui.error("An error occurred while executing on save microflow " + microflow + " : " + error.message);
+                        callback();
                     }
-                });
+                }, this);
             }
 
             if (this.onSaveNanoflow.nanoflow && this.mxcontext) {
@@ -237,10 +300,17 @@ require([
                     nanoflow: this.onSaveNanoflow,
                     origin: this.mxform,
                     context: this.mxcontext,
+                    callback: callback,
                     error: function (error) {
+                        this.uploadError = true;
+                        callback();
                         mx.ui.error("An error occurred while executing the on save nanoflow: " + error.message);
                     }
-                });
+                }, this);
+            }
+
+            if (!this.onchangemf && !this.onSaveNanoflow.nanoflow || !this.mxcontext) {
+                callback();
             }
         },
     });
