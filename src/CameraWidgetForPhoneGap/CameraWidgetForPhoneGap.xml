@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <widget id="CameraWidgetForPhoneGap.widget.CameraWidgetForPhoneGap" needsEntityContext="true" offlineCapable="true" xmlns="http://www.mendix.com/widget/1.0/">
     <name>Camera</name>
-    <description>Creates a button to use the phone camera option within a Mendix Developer application.</description>
+    <description>Creates a button to use the phone camera option within a Mendix Developer application</description>
     <icon>iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAA21BMVEUAAAD///+A//9VVVVmZmZVVVVgYGBVVVVmZmZVVVViYmJeXl5SuP9cXFxJtv9YWFhVVVVYWFhXV1dVVVVVVVVXV1dWVlZXV1dJs/lWVlZJs/lVVVVJsfdJsfhIsvhXV1dVVVVWVlZWVlZWVlZVVVVWVlZWVlZVVVVWVlZWVlZVVVVWVlZVVVVVVVVIsfhJsPhJsfhJsfhVVVVJsfdVVVVJsfhVVVVVVVVWVlZJsPdVVVVVVVVVVVVWVlZIsPhVVVVJsfhIsPhVVVVVVVVVVVVJsPhVVVVIsPdVVVUd0v+1AAAAR3RSTlMAAQIDBQYICQoMDRMZGRwgJDQ1NkhJSk9QUFdjZWlqcHJ5g4WZmpufoKOrrLCxtLW2vcLIyNHS1d/j5Ons7vDw8fP19vn8/PqNolUAAAJ4SURBVHgB7VdvX+IwDO6YoIhDBO4QYTL+HJwip4ITVByHotv3/0SX5IdzuWxs/vrW5w1tw/OsTZq0Vcn4hll1htPFcrNZLqa/nKr5NfZeY7wKGFaXjb3M9P3uMojBsrufbe6txyABj60MK/k53/77ddKpV0r5fKlS70xet4PzHyl0ox8QnkfNg+j4QXP0HBD6xi5+8SpAvPQOpe2w90LGq2Iy//ge//E+sOLN1uAd7ffHifwn8tSJSsQJ+fcpQaFI37+z1A5YdzSH2FUYtP6LgtqJwgX5Ic6TfeKrVJBCPyb+NP9CukCBViH2gzlH/1kqAyz05NxUHC2MH/f/6YO/xcMpjwVGs/Vf/qDqgA2dvfkh3s6YaYCz5ZnVxf1nCX6CgoV7ssvyH/O3J/iJCj3M7mh9aGL+4P7PnbseJ3Exz7VzmBeYWY2IwBj6I2zY4qNiOjaOjIBwGYkh1q8mtlzBFwrux5RXn5GsYf2g/P/ry9DxkPoe1QesMNXQ7EBvQi0fEEmP9my9nrUN6nD7BChOODyEXkcKHN36hNsjKdAByjAcnkKvLgQM4pMCzOH6mtnrQJmGAgvoVYRA2w/RBoE/zF4ByiIUwG1UEgIzaN+UyzfwMxNLKOFWCgU20MsLgTW0y0qV4WctBPJA2egL6C8huxMJ0onZw4iQYdTfSNpbmSeTEJBAO0smls5ZBXg684Li+amgdP7NC4pqfJQ0N13AjZY0UVTtdAGbFVVe1llRjYXnnudkWZcHi0TawSKPNgl5tOkfrvrHu/4FQ/+Ko3/J0r/m6V809a+6Wpdtjeu+xoND48mj8egapzy6BMza57Nv6NR2zP0b/wDScUGfAMfR4QAAAABJRU5ErkJggg==</icon>
     <phonegap enabled="true"/>
     <properties>
         <property key="buttonClass" type="string" defaultValue="wx-mxwx-button-extra">
             <caption>Class</caption>
             <category>Button</category>
-            <description>The class on the button.</description>
+            <description>The CSS class on the button</description>
         </property>
         <property key="buttonText" type="string" defaultValue="activate camera">
             <caption>Label</caption>
             <category>Button</category>
-            <description>The label on the button.</description>
+            <description/>
         </property>
         <property key="imageContainerClass" type="string" defaultValue="wx-mxwx-imagecontainer-extra">
             <caption>Image container class</caption>
             <category>Appearance</category>
-            <description>The class on the button.</description>
+            <description>The CSS class on the preview</description>
         </property>
         <property key="imageWidth" type="integer" defaultValue="150">
             <caption>Width</caption>
             <category>Appearance</category>
-            <description>The width of the image.</description>
+            <description>The width of the image thumbnail</description>
         </property>
         <property key="imageHeight" type="integer" defaultValue="150">
             <caption>Height</caption>
             <category>Appearance</category>
-            <description>The height of the image.</description>
+            <description>The height of the image thumbnail</description>
         </property>
         <property key="imageLocation" type="enumeration" defaultValue="right">
             <caption>Image location</caption>
             <category>Appearance</category>
-            <description>The position where the image is set.</description>
+            <description>The position where the thumbnail image is set</description>
             <enumerationValues>
                 <enumerationValue key="above">Above</enumerationValue>
                 <enumerationValue key="below">Below</enumerationValue>
@@ -44,33 +44,33 @@
         <property key="targetWidth" type="integer" defaultValue="150">
             <caption>Quality width</caption>
             <category>Image quality</category>
-            <description>The width of the image.</description>
+            <description>The width of the captured image</description>
         </property>
         <property key="targetHeight" type="integer" defaultValue="150">
             <caption>Quality height</caption>
             <category>Image quality</category>
-            <description>The height of the image.</description>
+            <description>The height of the captured image</description>
         </property>
         <property key="autoSaveEnabled" type="boolean" defaultValue="false">
             <caption>Autosave</caption>
-            <category>Behaviour</category>
+            <category>Behavior</category>
             <description>Enable autosave to automatically save your image</description>
         </property>
         <property key="onchangemf" type="microflow" required="false">
             <caption>On save microflow</caption>
-            <category>Behaviour</category>
-            <description>This microflow is called when the object is saved. use this to commit the object when using autosave</description> 
+            <category>Behavior</category>
+            <description>This microflow is called when the object is saved. Use this to commit the object when using autosave</description> 
             <returnType type="Void"/>
         </property>
         <property key="onSaveNanoflow" type="nanoflow" required="false">
             <caption>On save nanoflow</caption>
-            <category>Behaviour</category>
-            <description>This nanoflow is called when the object is saved. use this to commit the object when using autosave</description> 
+            <category>Behavior</category>
+            <description>This nanoflow is called when the object is saved. Use this to commit the object when using autosave</description> 
             <returnType type="Void"/>
         </property>
         <property key="pictureSource" type="enumeration" defaultValue="camera">
-            <caption>Picture Source</caption>
-            <category>Behaviour</category>
+            <caption>Picture source</caption>
+            <category>Behavior</category>
             <description>Grab image from either the camera or the phone's image gallery</description>
             <enumerationValues>
                 <enumerationValue key="camera">Camera</enumerationValue>
@@ -79,21 +79,21 @@
         </property>
         <property key="blockingUpload" type="enumeration" defaultValue="disabled">
             <caption>Block during upload</caption>
-            <category>Behaviour</category>
-            <description>Show progress message during upload (block UI) prevent form user interaction. Or 'On form save' upload can be started, only on save of the form show progress will be shown when the upload is not completed</description>
+            <category>Behavior</category>
+            <description>Prevent any form interaction. Shows the blocking progress message during the whole upload. Or show 'On form save', useful for 'autosave', will only show the blocking progress when the form will be closed, and the upload is not completed</description>
             <enumerationValues>
                 <enumerationValue key="disabled">None</enumerationValue>
                 <enumerationValue key="duringUpload">During upload</enumerationValue>
-                <enumerationValue key="onFormSave">On from save</enumerationValue>
+                <enumerationValue key="onFormSave">On form save</enumerationValue>
             </enumerationValues>
         </property>
         <property key="progressText" type="translatableString" required="false" >
             <caption>Progress upload text</caption>
-            <category>Behaviour</category>
+            <category>Behavior</category>
             <description/>
             <translations>
-                <translation lang="en_US">Uploading image in progress ...</translation>
-                <translation lang="nl_NL">Bezig met uploaden van de afbeelding ...</translation>
+                <translation lang="en_US">Uploading image in progress...</translation>
+                <translation lang="nl_NL">Bezig met uploaden van de afbeelding...</translation>
             </translations>
         </property>
     </properties>
