@@ -23,7 +23,7 @@ require([
         onSaveNanoflow: "",
         pictureSource: "camera",
         blockingUpload: "disabled", // disabled, duringUpload, onFormSave
-        progressText: "Uploading image in progress ...",
+        progressText: "Uploading image in progress...",
 
         _contextObj: null,
         _imageUrl: null,
@@ -34,6 +34,21 @@ require([
         uploadError: false,
 
         postCreate: function() {
+            this._updateRendering();
+            this._setupFromEvent();
+        },
+
+        update: function(obj, callback) {
+            if (obj) {
+                this._contextObj = obj;
+                this._validateContext(obj);
+            }
+            this._setPicture("");
+
+            if (callback) callback();
+        },
+
+        _updateRendering: function() {
             domClass.add(this.domNode, "wx-CameraWidgetForPhoneGap");
 
             var elements = [ this._setupPreview(), this._setupButton() ];
@@ -50,37 +65,6 @@ require([
                 domClass.add(el, "wx-CameraWidgetForPhoneGap-" + alignment);
                 this.domNode.appendChild(el);
             }, this);
-
-            this.listen("commit", function(callback) {
-                if (!this.autoSaveEnabled) {
-                    this._sendFile(callback);
-                } else {
-                    if (this.uploading && this.blockingUpload === "onFormSave") {
-                        this._showProgress();
-                        var self = this;
-                        mxLang.delay(function() {
-                            if (!self.uploadError) {
-                                callback();
-                            }
-                        }, function() {
-                            return !self.uploading
-                        }, 100);
-                    } else {
-                        callback();
-                    }
-                }
-            });
-        },
-
-        update: function(obj, callback) {
-            if (obj) {
-                this._contextObj = obj;
-                this._loadData();
-                this._resetSubscriptions();
-                this._setPicture("");
-            }
-
-            if (callback) callback();
         },
 
         _setupButton: function() {
@@ -100,16 +84,35 @@ require([
             return this._previewNode;
         },
 
-        _loadData: function() {
-            if (this._contextObj) {
-                if (!this._contextObj.inheritsFrom("System.FileDocument")) {
-                    var span = dom.create("span", {
-                        "class": "alert-danger",
-                        innerHTML: 'Entity "' + this._contextObj.getEntity() + '" does not inherit from "System.FileDocument".'
-                    });
-                    domConstruct.empty(this.domNode);
-                    this.domNode.appendChild(span);
+        _setupFromEvent: function() {
+            this.listen("commit", function(callback) {
+                if (!this.autoSaveEnabled) {
+                    this.uploading = true;
+                    this._sendFile(callback);
+                } else {
+                    if (this.uploading && this.blockingUpload === "onFormSave") {
+                        this._showProgress();
+                        var self = this;
+                        mxLang.delay(function() {
+                            if (!self.uploadError) {
+                                callback();
+                            }
+                        }, function() { return !self.uploading; }, 100);
+                    } else {
+                        callback();
+                    }
                 }
+            });
+        },
+
+        _validateContext: function(contextObject) {
+            if (contextObject && !contextObject.inheritsFrom("System.FileDocument")) {
+                var span = dom.create("span", {
+                    "class": "alert-danger",
+                    innerHTML: 'Entity "' + contextObject.getEntity() + '" does not inherit from "System.FileDocument".'
+                });
+                domConstruct.empty(this.domNode);
+                this.domNode.appendChild(span);
             }
         },
 
@@ -119,10 +122,10 @@ require([
         },
 
         _setThumbnail: function(url) {
-            var urlDisplay = url ? "" : "none",
-                width = this.imageWidth || 100,
-                height = this.imageHeight || 100,
-                background = url ? "url(" + url + ")" : "none";
+            var urlDisplay = url ? "" : "none";
+            var width = this.imageWidth || 100;
+            var height = this.imageHeight || 100;
+            var background = url ? "url(" + url + ")" : "none";
 
             domStyle.set(this._previewNode, {
                 "background-image": background,
@@ -140,8 +143,9 @@ require([
                 return;
             }
 
-            var sourceType = (this.pictureSource == "camera") ?
-                    Camera.PictureSourceType.CAMERA : Camera.PictureSourceType.PHOTOLIBRARY;
+            var sourceType = (this.pictureSource == "camera")
+                ? Camera.PictureSourceType.CAMERA
+                : Camera.PictureSourceType.PHOTOLIBRARY;
             var params = {
                 quality: 100,
                 destinationType: Camera.DestinationType.FILE_URL,
@@ -175,7 +179,7 @@ require([
         },
 
         _sendFile: function(callback) {
-            logger.debug(this.id + "._sendFile");
+            logger.debug(this.friendlyId + "._sendFile");
             this.uploadError = false;
             var self = this;
 
@@ -219,13 +223,13 @@ require([
             function error(e) {
                 this.uploadError = true;
                 self._hideProgress();
-                logger.error("Uploading image failed with error code ", e);
+                logger.error(this.friendlyId + "Uploading image failed with error", e);
                 window.mx.ui.error("Uploading image failed with error " + e.message || e.code || "");
             }
         },
 
         _autoSave: function(url) {
-            logger.debug(this.id + "._autoSave");
+            logger.debug(this.friendlyId + "._autoSave");
             this._imageUrl = url;
             if (this._contextObj){
                 this.uploading = true;
@@ -239,7 +243,7 @@ require([
                      },
                      error: function(error) {
                         this.uploadError = true;
-                        logger.error("Error committing image ", error);
+                        logger.error(this.friendlyId + " Error committing image ", error);
                         window.mx.ui.error("Error saving image " + error.message);
                         this._hideProgress();
                      }
@@ -261,35 +265,18 @@ require([
             }
         },
 
-        _resetSubscriptions: function() {
-            this.unsubscribeAll();
-
-            if (this._contextObj) {
-                this.subscribe({
-                    guid: this._contextObj.getGuid(),
-                    callback: function(guid) {
-                        window.mx.data.get({
-                            guid: guid,
-                            callback: function(obj) {
-                                this._contextObj = obj;
-                                this._loadData();
-                            }
-                        }, this);
-                    }
-                });
-            }
-        },
-
         _executeAction: function(callback) {
             if (this.onchangemf && this.mxcontext) {
-                var microflow = this.onchangemf;
-                window.mx.ui.action(microflow, {
-                    context: this.mxcontext,
+                window.mx.ui.action(this.onchangemf, {
+                    params: {
+                        applyto: "selection",
+                        guids: [ this.mxcontext.getTrackId() ]
+                    },
                     origin: this.mxform,
                     callback: callback,
                     error: function(error) {
                         this.uploadError = true;
-                        mx.ui.error("An error occurred while executing on save microflow " + microflow + " : " + error.message);
+                        mx.ui.error("An error occurred while executing on save microflow " + this.onchangemf + " : " + error.message);
                         callback();
                     }
                 }, this);
@@ -303,8 +290,9 @@ require([
                     callback: callback,
                     error: function (error) {
                         this.uploadError = true;
-                        callback();
                         mx.ui.error("An error occurred while executing the on save nanoflow: " + error.message);
+                        logger.error(this.friendlyId + " An error occurred while executing the on save nanoflow", error);
+                        callback();
                     }
                 }, this);
             }
