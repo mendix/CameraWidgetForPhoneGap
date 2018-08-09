@@ -45,7 +45,9 @@ require([
             }
             this._setPicture("");
 
-            if (callback) callback();
+            if (callback) {
+                callback();
+            }
         },
 
         _updateRendering: function() {
@@ -143,19 +145,8 @@ require([
                 return;
             }
 
-            var sourceType = (this.pictureSource == "camera")
-                ? Camera.PictureSourceType.CAMERA
-                : Camera.PictureSourceType.PHOTOLIBRARY;
-            var params = {
-                quality: 100,
-                destinationType: Camera.DestinationType.FILE_URL,
-                correctOrientation: true,
-                sourceType: sourceType
-            };
-            if (this.targetWidth !== 0) params.targetWidth = this.targetWidth;
-            if (this.targetHeight !== 0) params.targetHeight = this.targetHeight;
-            // TODO: get rid of temp image files
-            navigator.camera.getPicture(success, error, params);
+            var options = this._getOptions();
+            navigator.camera.getPicture(success, error, options);
 
             function success(url) {
                 if (self.autoSaveEnabled) {
@@ -178,6 +169,23 @@ require([
             }
         },
 
+        _getOptions() {
+            var sourceType = this.pictureSource == "camera"
+                ? Camera.PictureSourceType.CAMERA
+                : Camera.PictureSourceType.PHOTOLIBRARY;
+
+            var options = {
+                quality: 100,
+                destinationType: Camera.DestinationType.FILE_URL,
+                correctOrientation: true,
+                sourceType: sourceType,
+                targetWidth: this.targetWidth !== 0 ? this.targetWidth : undefined,
+                targetHeight: this.targetHeight !== 0 ? this.targetHeight : undefined
+            };
+
+            return options;
+        },
+
         _sendFile: function(callback) {
             logger.debug(this.friendlyId + "._sendFile");
             this.uploadError = false;
@@ -185,7 +193,9 @@ require([
 
             if (!this._imageUrl) {
                 self._hideProgress();
-                if (callback) callback();
+                if (callback) {
+                    callback();
+                }
                 return;
             }
             if (this.blockingUpload === "duringUpload") {
@@ -216,7 +226,9 @@ require([
                     self._setPicture("");
                     self._hideProgress();
                     logger.debug(self.id + ".upload done");
-                    if (callback) callback();
+                    if (callback) {
+                        callback();
+                    }
                 });
             }
 
@@ -236,17 +248,17 @@ require([
                 if (this.blockingUpload === "duringUpload") {
                     this._showProgress();
                 }
-                 window.mx.data.commit({
-                     mxobj: this._contextObj,
-                     callback: function(){
+                window.mx.data.commit({
+                    mxobj: this._contextObj,
+                    callback: function(){
                         this._sendFile();
-                     },
-                     error: function(error) {
+                    },
+                    error: function(error) {
                         this.uploadError = true;
+                        this._hideProgress();
                         logger.error(this.friendlyId + " Error committing image ", error);
                         window.mx.ui.error("Error saving image " + error.message);
-                        this._hideProgress();
-                     }
+                    }
                 }, this);
             }
         },
