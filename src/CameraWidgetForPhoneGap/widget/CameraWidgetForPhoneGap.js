@@ -16,6 +16,7 @@ require([
         imageWidth: 150,
         imageHeight: 150,
         imageLocation: "right",
+        autoCapture: false,
         targetWidth: 150,
         targetHeight: 150,
         autoSaveEnabled: false,
@@ -36,6 +37,12 @@ require([
         postCreate: function() {
             this._updateRendering();
             this._setupFromEvent();
+            if (this.autoCapture && navigator.camera) {
+                var handle = this.connect(this.mxform, "onNavigation", function() {
+                    this.disconnect(handle);
+                    this._getPicture();
+                });
+            }
         },
 
         update: function(obj, callback) {
@@ -145,10 +152,12 @@ require([
                 return;
             }
 
+            var blockInputHandle = mx.ui.showProgress("", true);
             var options = this._getOptions();
             navigator.camera.getPicture(success, error, options);
 
             function success(url) {
+                mx.ui.hideProgress(blockInputHandle);
                 if (self.autoSaveEnabled) {
                     self._autoSave(url);
                 } else {
@@ -157,6 +166,7 @@ require([
             }
 
             function error(error) {
+                mx.ui.hideProgress(blockInputHandle);
                 var message = error ? error.trim().toLowerCase() : "unknown";
                 const cameraError = "no image selected."
                 const cameraError2 = "camera cancelled."
@@ -280,10 +290,7 @@ require([
         _executeAction: function(callback) {
             if (this.onchangemf && this.mxcontext) {
                 window.mx.ui.action(this.onchangemf, {
-                    params: {
-                        applyto: "selection",
-                        guids: [ this.mxcontext.getTrackId() ]
-                    },
+                    context: this.mxcontext,
                     origin: this.mxform,
                     callback: callback,
                     error: function(error) {

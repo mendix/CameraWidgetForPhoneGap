@@ -10,10 +10,14 @@
             <category>Button</category>
             <description>The CSS class on the button</description>
         </property>
-        <property key="buttonText" type="string" defaultValue="activate camera">
+        <property key="buttonText" type="translatableString">
             <caption>Label</caption>
             <category>Button</category>
             <description/>
+            <translations>
+                <translation lang="en_US">Activate camera</translation>
+                <translation lang="nl_NL">Camera activeren</translation>
+            </translations>
         </property>
         <property key="imageContainerClass" type="string" defaultValue="wx-mxwx-imagecontainer-extra">
             <caption>Image container class</caption>
@@ -51,10 +55,15 @@
             <category>Image quality</category>
             <description>The height of the captured image</description>
         </property>
-        <property key="autoSaveEnabled" type="boolean" defaultValue="false">
-            <caption>Autosave</caption>
+        <property key="autoCapture" type="boolean" defaultValue="false">
+            <caption>Auto capture</caption>
             <category>Behavior</category>
-            <description>Enable autosave to automatically save your image</description>
+            <description>Enable auto capture to automatically start the camera</description>
+        </property>
+        <property key="autoSaveEnabled" type="boolean" defaultValue="false">
+            <caption>Auto save</caption>
+            <category>Behavior</category>
+            <description>Enable auto save to automatically save your image</description>
         </property>
         <property key="onchangemf" type="microflow" required="false">
             <caption>On save microflow</caption>

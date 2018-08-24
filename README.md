@@ -55,11 +55,10 @@ and run further actions.
 Setting that determines where the image will come from: gallery or the camera.
 
 ### Image quality
-Be aware that setting this higher will be more taxing and will take longer to upload.  If quality
-width and height are both set to `0`, the image will be saved full size.
+This will change the image-width and height on output. Be aware that setting this higher will be more taxing and will take longer to upload. If quality width and height are both set to `0`, the image will be saved full size.
 
 #### Quality width
-The width of the image that is eventually stored and send to the application, between 0 and 100. 
-#### Quality height
-The height of the image that is eventually stored and send to the application, between 0 and 100.
+Width in pixels to scale image. Must be used with targetHeight. Aspect ratio remains constant.
 
+#### Quality height
+Height in pixels to scale image. Must be used with targetWidth. Aspect ratio remains constant.
