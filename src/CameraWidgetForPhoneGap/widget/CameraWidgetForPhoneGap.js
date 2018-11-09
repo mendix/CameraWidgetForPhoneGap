@@ -179,7 +179,7 @@ require([
             }
         },
 
-        _getOptions() {
+        _getOptions: function() {
             var sourceType = this.pictureSource == "camera"
                 ? Camera.PictureSourceType.CAMERA
                 : Camera.PictureSourceType.PHOTOLIBRARY;
