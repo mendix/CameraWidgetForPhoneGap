@@ -1,6 +1,6 @@
 {
   "name": "CameraWidgetForPhoneGap",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Enable native camera functionality within your Mendix hybrid app",
   "license": "Apache-2.0",
   "author": "Mendix BV",
