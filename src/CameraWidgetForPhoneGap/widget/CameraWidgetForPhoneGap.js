@@ -168,8 +168,8 @@ require([
             function error(error) {
                 mx.ui.hideProgress(blockInputHandle);
                 var message = error ? error.trim().toLowerCase() : "unknown";
-                const cameraError = "no image selected."
-                const cameraError2 = "camera cancelled."
+                var cameraError = "no image selected.";
+                var cameraError2 = "camera cancelled.";
                 if (message.indexOf(cameraError) > -1 && message.indexOf(cameraError2) > -1) {
                     window.mx.ui.error("Error while retrieving image with error " + error);
                     logger.error(self.friendlyId + " : error while retrieving image", error);
