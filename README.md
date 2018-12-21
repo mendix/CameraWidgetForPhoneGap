@@ -6,7 +6,7 @@ application.
 ## Contributing
 
 For more information on contributing to this repository visit
-[Contributing to a GitHub repository](https://world.mendix.com/display/howto50/Contributing+to+a+GitHub+repository)!
+[Contributing to a GitHub repository](https://docs.mendix.com/howto/collaboration-requirements-management/contribute-to-a-github-repository)!
 
 ## Compatibility
 The camera widget functions on the latest versions of both iOS and Android. Windows Phone is
