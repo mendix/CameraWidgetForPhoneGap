@@ -20,7 +20,7 @@
     "grunt-contrib-csslint": "^2.0.0",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-newer": "^1.2.0",
-    "node-base64-image": "^1.0.5",
+    "node-base64-image": "^1.0.7",
     "node-mendix-modeler-path": "https://github.com/JelteMX/node-mendix-modeler-path/archive/v1.0.0.tar.gz",
     "semver": "^5.6.0",
     "shelljs": "^0.8.3",
